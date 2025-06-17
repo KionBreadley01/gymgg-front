@@ -1,11 +1,6 @@
-import Header from '@/app/components/Header'
-import Footer from './components/Footer'
+// app/page.tsx
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen p-8">
-      {/* <Header />
-      <Footer /> */}
-    </main>
-  )
+  redirect('/welcome');
 }
