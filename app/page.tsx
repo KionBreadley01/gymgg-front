@@ -1,11 +1,11 @@
 import Header from '@/app/components/Header'
-import WelcomeCard from '@/app/components/WelcomeCard'
+import Footer from './components/Footer'
 
 export default function Home() {
   return (
     <main className="min-h-screen p-8">
-      <Header />
-      <WelcomeCard />
+      {/* <Header />
+      <Footer /> */}
     </main>
   )
 }
