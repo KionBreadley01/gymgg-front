@@ -2,7 +2,7 @@ import { UserCircle } from "lucide-react";
 
 const Header = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-8 py-10 bg-gray-900">
+    <header className="fixed top-0 left-0 right-0 z-50 px-8 py-10">
       <div className="flex items-center justify-between text-lg font-medium">
         <div className="flex items-center space-x-2">
           <img src="/Logo.png" alt="Logo" className="h-10 w-auto" />
