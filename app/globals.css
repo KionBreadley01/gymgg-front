@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+header {
+  background-color: #111010;
+} 
+
+footer {
+  background-color: #111010;
+  color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+}
