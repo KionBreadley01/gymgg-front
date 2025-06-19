@@ -10,7 +10,7 @@ export default function InformativeSection() {
         <div className="flex flex-col items-center mb-8">
           <div className="mb-4">
             <Image 
-              src="/assets/images/image1.png" 
+              src="/Logo.png" 
               alt="Logo GymGG"
               width={120}
               height={120}
