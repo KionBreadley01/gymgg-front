@@ -6,9 +6,16 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 px-4 md:px-8 py-6 md:py-8 bg-gray-900">
       <div className="flex items-center justify-between text-lg font-medium">
-        <div className="flex items-center space-x-2">
-          <Link href="/welcome">
-            <img src="/Logo.png" alt="Logo" className="h-12 w-12 rounded-full object-cover" />
+       <div className="flex items-center space-x-4">
+          <Link href="/dashboard" className="flex items-center">
+            <img 
+              src="/Logo.png" 
+              alt="Logo GymGG" 
+              className="h-10 w-10 rounded-full border-2 border-yellow-500"
+            />
+            <span className="ml-2 text-xl font-bold">
+              GymsGG 
+            </span>
           </Link>
         </div>
 
