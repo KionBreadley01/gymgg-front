@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { Oswald, Roboto } from 'next/font/google'
 import './globals.css'
 
-// Components
-import Header from './components/Header'
+// Componentes
 import Footer from './components/Footer'
 
+// Carga de fuentes personalizadas desde Google Fonts.
+// Estas fuentes se aplicarán globalmente a la aplicación.
 const oswald = Oswald({ 
   subsets: ['latin'], 
   weight: ['200', '300', '400', '500', '600', '700'],
@@ -18,11 +19,14 @@ const roboto = Roboto({
   variable: '--font-roboto',
 })
 
+// Metadatos de la aplicación para SEO y la pestaña del navegador.
 export const metadata: Metadata = {
   title: 'GymGG',
   description: 'Sistema de gestión de gimnasio',
 }
 
+// Layout raíz que envuelve toda la aplicación.
+// Define la estructura base del HTML con las fuentes y componentes comunes.
 export default function RootLayout({
   children,
 }: {
@@ -31,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${oswald.variable} ${roboto.variable}`}>
-        <Header />
+        {/* 'children' representa el contenido de la página activa. */}
         {children}
         <Footer />
       </body>

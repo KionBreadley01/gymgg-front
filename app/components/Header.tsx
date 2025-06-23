@@ -2,6 +2,7 @@
 import { UserCircle } from "lucide-react";
 import Link from 'next/link';
 
+// Componente que renderiza el encabezado principal para usuarios no autenticados o clientes.
 const Header = () => {
   return (
     <header className="sticky top-0 z-50 px-4 md:px-8 py-6 md:py-8 bg-gray-900">

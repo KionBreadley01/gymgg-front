@@ -18,7 +18,7 @@ export default function InformativeSection() {
             />
           </div>
           <h1 className="text-4xl font-bold text-center text-gray-800">
-            <span className="text-yellow-600">GymsGG</span> Admin
+            <span className="text-yellow-600">GymsGG</span> 
           </h1>
         </div>
 

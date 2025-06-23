@@ -1,4 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GymsGG - Sistema de Gestión de Gimnasio
+
+Este es el repositorio para el frontend de GymsGG, un sistema de gestión de gimnasios construido con Next.js y Tailwind CSS.
+
+## Estructura del Proyecto
+
+La estructura de carpetas está organizada para mantener una clara separación de responsabilidades, siguiendo las convenciones de Next.js.
+
+- **/app**: Contiene el núcleo de la aplicación, utilizando el App Router de Next.js.
+  - **/app/(admin)**: Grupo de rutas para el panel de administración. Las URLs de este grupo no incluyen `/(admin)/`.
+    - **/app/(admin)/dashboard**: Páginas específicas del panel de administración (gestión de usuarios, productos, etc.).
+    - **/app/(admin)/layout.tsx**: Layout que aplica el `Header_admin` a todas las páginas del panel de administración.
+  - **/app/(main)**: Grupo de rutas para las páginas públicas y de clientes. Las URLs de este grupo no incluyen `/(main)/`.
+    - **/app/(main)/welcome**: Página de bienvenida.
+    - **/app/(main)/login**: Página de inicio de sesión.
+    - **/app/(main)/memberships**: Página de membresías.
+    - **/app/(main)/layout.tsx**: Layout que aplica el `Header` estándar a todas las páginas públicas.
+  - **/app/components**: Componentes reutilizables de React (Headers, Footer, etc.).
+  - **/app/layout.tsx**: Layout raíz de la aplicación. Aplica fuentes globales y componentes comunes como el `Footer`.
+  - **/app/globals.css**: Estilos CSS globales para la aplicación.
+
+- **/public**: Almacena archivos estáticos como imágenes y logos, que son servidos públicamente.
+  - **/public/assets/images**: Contiene las imágenes utilizadas en la aplicación.
+
+- **next.config.ts**: Archivo de configuración para Next.js.
+- **tailwind.config.ts**: Archivo de configuración para Tailwind CSS.
+- **package.json**: Define los scripts del proyecto y gestiona las dependencias.
 
 ## Getting Started
 
