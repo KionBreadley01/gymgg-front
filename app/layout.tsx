@@ -28,6 +28,7 @@ export default function RootLayout({
           {/* <Login /> */}
           {/* <SignUp />  */}
       </body>
+      
     </html>
   )
 }
