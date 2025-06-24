@@ -2,21 +2,18 @@ import type { Metadata } from 'next'
 import { Oswald, Roboto } from 'next/font/google'
 import './globals.css'
 
-// Componentes
+// Components
+import Header from './components/Header'
 import Footer from './components/Footer'
-import SignUp from './signup/page'
-import Login from './login/page'
+// import SignUp from './signup/page'
+import Login from './(main)/login/page'
 
 
-
-// Metadatos de la aplicación para SEO y la pestaña del navegador.
 export const metadata: Metadata = {
   title: 'GymGG',
   description: 'Sistema de gestión de gimnasio',
 }
 
-// Layout raíz que envuelve toda la aplicación.
-// Define la estructura base del HTML con las fuentes y componentes comunes.
 export default function RootLayout({
   children,
 }: {
@@ -24,6 +21,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <body>
+          {/* <Header /> */}
+          {children}
+          <Footer />
+          {/* <Login /> */}
+          {/* <SignUp />  */}
       </body>
     </html>
   )
