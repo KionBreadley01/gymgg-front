@@ -1,3 +1,4 @@
+// Componente que renderiza el pie de página común para toda la aplicación.
 const Footer = () => {
     return (
         <footer className="bg-gray-800 text-white py-4">

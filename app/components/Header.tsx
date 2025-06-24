@@ -4,6 +4,7 @@ import { UserCircle } from "lucide-react";
 import Link from 'next/link';
 import { useState } from "react";
 
+// Componente que renderiza el encabezado principal para usuarios no autenticados o clientes.
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -12,10 +13,6 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 px-4 md:px-8 py-6 md:py-8 bg-gray-900">
       <div className="flex items-center justify-between text-lg font-medium">
-        {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <Link href="/welcome">
-            <img src="/Logo.png" alt="Logo" className="h-12 w-12 rounded-full object-cover" />
           </Link>
         </div>
 
