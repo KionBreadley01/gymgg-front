@@ -1,5 +1,6 @@
 'use client'; 
 
+import { Link } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -74,6 +75,14 @@ export default function SignUp() {
             >
                 Crear cuenta
             </button>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <span className="text-gray-600">¿Ya tienes una cuenta?</span>
+              <Link href="/login" className="font-medium text-black hover:text-gray-700 ml-1">
+                Iniciar sesión
+              </Link>
+            </div>
           </div>
         </form>
       </div>
