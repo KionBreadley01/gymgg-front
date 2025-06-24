@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }) {
   return (
     <>
-      { <Header_admin />}
+      < Header_admin />  
       <main className="min-h-[calc(100vh-160px)] bg-gray-50">
         {children}
       </main>
