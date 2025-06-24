@@ -7,7 +7,7 @@ const Footer = () => {
                     &copy; {new Date().getFullYear()} GymsGG. Todos los derechos reservados.
                 </p>
                 <p className="text-xs mt-2">
-                    Desarrollado por <a href="#">MajesTIC</a>
+                    Desarrollado por <a href="#">....</a>
                 </p>
             </div>
         </footer>

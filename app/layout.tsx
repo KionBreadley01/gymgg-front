@@ -4,20 +4,10 @@ import './globals.css'
 
 // Componentes
 import Footer from './components/Footer'
+import SignUp from './signup/page'
+import Login from './login/page'
 
-// Carga de fuentes personalizadas desde Google Fonts.
-// Estas fuentes se aplicarán globalmente a la aplicación.
-const oswald = Oswald({ 
-  subsets: ['latin'], 
-  weight: ['200', '300', '400', '500', '600', '700'],
-  variable: '--font-oswald',
-})
 
-const roboto = Roboto({ 
-  subsets: ['latin'], 
-  weight: ['100', '300', '400', '500', '700', '900'],
-  variable: '--font-roboto',
-})
 
 // Metadatos de la aplicación para SEO y la pestaña del navegador.
 export const metadata: Metadata = {
@@ -34,10 +24,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${oswald.variable} ${roboto.variable}`}>
-        {/* 'children' representa el contenido de la página activa. */}
-        {children}
-        <Footer />
       </body>
     </html>
   )
