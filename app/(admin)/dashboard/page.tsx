@@ -21,7 +21,7 @@ export default function AdminDashboard() {
               description: 'Gestión de usuarios'
             },
             {
-              href: '#',
+              href: '/products',
               title: 'Productos',
               icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Administración de productos'
