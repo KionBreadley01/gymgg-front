@@ -103,7 +103,7 @@ export default function UserManagement() {
     // Aquí iría la lógica para agregar el usuario a la base de datos
     console.log('Nuevo usuario:', newUser);
     
-    // Simular agregar usuario (en una app real, esto sería una llamada a la API)
+    // Simular agregar usuario 
     alert('Usuario agregado exitosamente');
     
     // Limpiar formulario y cerrar modal
@@ -142,7 +142,7 @@ export default function UserManagement() {
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-800 rounded-lg bg-white text-gray-900 placeholder-gray-500"
                 placeholder="Buscar usuario por nombre o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -152,7 +152,7 @@ export default function UserManagement() {
             {/* Filtro por membresía */}
             <div className="lg:w-48">
               <select
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-800 rounded-lg bg-white text-gray-900 placeholder-gray-500"
                 value={filterMembership}
                 onChange={(e) => setFilterMembership(e.target.value)}
               >

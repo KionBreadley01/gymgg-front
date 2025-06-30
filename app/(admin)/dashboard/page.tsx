@@ -26,12 +26,12 @@ export default function AdminDashboard() {
               icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Administración de productos'
             },
-           /* {
+           {
               href: '/memberships',
               title: 'Membresías',
               icon: <CreditCard className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Control de membresías'
-            },*/
+            },
               {
               href: '#',
               title: 'Ventas',
