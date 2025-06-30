@@ -1,15 +1,21 @@
 'use client';
 
-import { Search, User, Mail, Calendar, CreditCard } from 'lucide-react';
+import { Search, User, Mail, Calendar, CreditCard, Edit, Trash2, Eye, MoreHorizontal, X, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function UserManagement() {
-  // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
-  // Estado para registrar el ID del usuario que ha sido seleccionado para ver más detalles.
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [filterMembership, setFilterMembership] = useState('all');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    membership: 'Básica',
+    status: 'Activo'
+  });
 
-  // Datos de ejemplo para la lista de usuarios. En una aplicación real, esto vendría de una API.
+  // Datos de ejemplo para la lista de usuarios
   const users = [
     {
       id: 1,
@@ -17,7 +23,8 @@ export default function UserManagement() {
       email: 'Gustavo@gmail.com',
       membership: 'Premium',
       paymentDate: '02-05-25',
-      endDate: '06-06-25'
+      endDate: '06-06-25',
+      status: 'Activo'
     },
     {
       id: 2,
@@ -25,7 +32,8 @@ export default function UserManagement() {
       email: 'martha@example.com',
       membership: 'Básica',
       paymentDate: '15-05-25',
-      endDate: '15-06-25'
+      endDate: '15-06-25',
+      status: 'Activo'
     },
     {
       id: 3,
@@ -33,100 +41,390 @@ export default function UserManagement() {
       email: 'juan@example.com',
       membership: 'Plus',
       paymentDate: '01-05-25',
-      endDate: '01-06-25'
+      endDate: '01-06-25',
+      status: 'Suspendido'
+    },
+    {
+      id: 4,
+      name: 'Ana María López Torres',
+      email: 'ana@example.com',
+      membership: 'Premium',
+      paymentDate: '20-05-25',
+      endDate: '20-06-25',
+      status: 'Activo'
+    },
+    {
+      id: 5,
+      name: 'Carlos Eduardo Morales',
+      email: 'carlos@example.com',
+      membership: 'Básica',
+      paymentDate: '10-05-25',
+      endDate: '10-06-25',
+      status: 'Activo'
     }
   ];
 
-  // Filtra la lista de usuarios basándose en el término de búsqueda.
-  // La búsqueda es insensible a mayúsculas y minúsculas y se aplica sobre el nombre y el email.
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtra la lista de usuarios
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
+    return matchesSearch && matchesMembership;
+  });
+
+  const selectedUserData = users.find(user => user.id === selectedUser);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Activo':
+        return 'bg-green-100 text-green-800';
+      case 'Suspendido':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getMembershipColor = (membership: string) => {
+    switch (membership) {
+      case 'Premium':
+        return 'bg-purple-100 text-purple-800';
+      case 'Plus':
+        return 'bg-blue-100 text-blue-800';
+      case 'Básica':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aquí iría la lógica para agregar el usuario a la base de datos
+    console.log('Nuevo usuario:', newUser);
+    
+    // Simular agregar usuario (en una app real, esto sería una llamada a la API)
+    alert('Usuario agregado exitosamente');
+    
+    // Limpiar formulario y cerrar modal
+    setNewUser({
+      name: '',
+      email: '',
+      membership: 'Básica',
+      status: 'Activo'
+    });
+    setShowAddForm(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setNewUser(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Gestión de Usuarios</h1>
-        
-        {/* Barra de búsqueda */}
-        <div className="relative mb-8">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-            placeholder="Buscar usuario por nombre o email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Gestión de Usuarios</h1>
+          <p className="text-gray-600">Administra los usuarios y sus membresías</p>
         </div>
 
-        {/* Lista de usuarios */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          {filteredUsers.map((user) => (
-            <div 
-              key={user.id}
-              className={`border-b border-gray-200 p-6 hover:bg-gray-50 cursor-pointer transition-colors ${selectedUser === user.id ? 'bg-yellow-50' : ''}`}
-              onClick={() => setSelectedUser(user.id)}
+        {/* Filtros y búsqueda */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Barra de búsqueda */}
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Buscar usuario por nombre o email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Filtro por membresía */}
+            <div className="lg:w-48">
+              <select
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                value={filterMembership}
+                onChange={(e) => setFilterMembership(e.target.value)}
+              >
+                <option value="all">Todas las membresías</option>
+                <option value="Premium">Premium</option>
+                <option value="Plus">Plus</option>
+                <option value="Básica">Básica</option>
+              </select>
+            </div>
+
+            {/* Botón agregar usuario */}
+            <button 
+              onClick={() => setShowAddForm(true)}
+              className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium flex items-center space-x-2"
             >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                {/* Información principal */}
-                <div className="mb-4 md:mb-0">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 text-gray-500 mr-2" />
-                    <h3 className="text-lg font-medium text-gray-800">{user.name}</h3>
+              <Plus className="h-5 w-5" />
+              <span>Agregar Usuario</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Contenedor principal con tabla y detalles */}
+        <div className="flex gap-6">
+          {/* Tabla de usuarios */}
+          <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${selectedUser ? 'flex-1' : 'w-full'}`}>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Usuario
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Membresía
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredUsers.map((user) => (
+                    <tr 
+                      key={user.id} 
+                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+                      onClick={() => setSelectedUser(user.id)}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                            <User className="h-5 w-5 text-yellow-600" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
+                          {user.membership}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
+                          {user.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer de la tabla */}
+            <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-700">
+                  Mostrando {filteredUsers.length} de {users.length} usuarios
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50">
+                    Anterior
+                  </button>
+                  <span className="px-3 py-1 text-sm text-gray-900 bg-white border border-gray-300 rounded">
+                    1
+                  </span>
+                  <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50">
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta de detalles del usuario seleccionado */}
+          {selectedUser && selectedUserData && (
+            <div className="w-96 bg-white rounded-xl shadow-sm p-6 h-fit">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Detalles del Usuario</h3>
+                <button 
+                  onClick={() => setSelectedUser(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Información del usuario */}
+                <div className="flex items-center space-x-4">
+                  <div className="h-16 w-16 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <User className="h-8 w-8 text-yellow-600" />
                   </div>
-                  <div className="flex items-center mt-2">
-                    <Mail className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-gray-600">{user.email}</span>
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">{selectedUserData.name}</h4>
+                    <p className="text-gray-500">{selectedUserData.email}</p>
                   </div>
                 </div>
 
                 {/* Detalles de membresía */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center">
-                    <CreditCard className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-gray-600">
-                      <span className="font-medium">Membresía:</span> {user.membership}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Membresía:</span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData.membership)}`}>
+                      {selectedUserData.membership}
                     </span>
                   </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-gray-600">
-                      <span className="font-medium">Pagada:</span> {user.paymentDate}
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Estado:</span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.status)}`}>
+                      {selectedUserData.status}
                     </span>
                   </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-gray-600">
-                      <span className="font-medium">Termina:</span> {user.endDate}
-                    </span>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Fecha de Pago:</span>
+                    <span className="text-sm text-gray-900">{selectedUserData.paymentDate}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
+                    <span className="text-sm text-gray-900">{selectedUserData.endDate}</span>
+                  </div>
+                </div>
+
+                {/* Acciones */}
+                <div className="pt-4 border-t border-gray-200">
+                  <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
+                  <div className="space-y-2">
+                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      <Eye className="h-4 w-4" />
+                      <span>Ver detalles</span>
+                    </button>
+                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                      <Edit className="h-4 w-4" />
+                      <span>Editar usuario</span>
+                    </button>
+                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                      <span>Eliminar usuario</span>
+                    </button>
                   </div>
                 </div>
               </div>
-
-              {/* Sección expandible para usuario seleccionado */}
-              {selectedUser === user.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-800 mb-2">Acciones:</h4>
-                  <div className="flex space-x-3">
-                    <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition">
-                      Editar usuario
-                    </button>
-                    <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
-                      Renovar membresía
-                    </button>
-                    <button className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
-                      Suspender cuenta
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-          ))}
+          )}
         </div>
+
+        {/* Modal para agregar usuario */}
+        {showAddForm && (
+          <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Usuario</h3>
+                <button 
+                  onClick={() => setShowAddForm(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddUser} className="p-6 space-y-4">
+                {/* Nombre */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre completo
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="Ingresa el nombre completo"
+                    value={newUser.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="ejemplo@email.com"
+                    value={newUser.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                  />
+                </div>
+
+                {/* Membresía */}
+                <div>
+                  <label htmlFor="membership" className="block text-sm font-medium text-gray-700 mb-2">
+                    Membresía
+                  </label>
+                  <select
+                    id="membership"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    value={newUser.membership}
+                    onChange={(e) => handleInputChange('membership', e.target.value)}
+                  >
+                    <option value="Básica">Básica</option>
+                    <option value="Plus">Plus</option>
+                    <option value="Premium">Premium</option>
+                  </select>
+                </div>
+
+                {/* Estado */}
+                <div>
+                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                    Estado
+                  </label>
+                  <select
+                    id="status"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    value={newUser.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                  >
+                    <option value="Activo">Activo</option>
+                    <option value="Suspendido">Suspendido</option>
+                  </select>
+                </div>
+
+                {/* Botones */}
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddForm(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                  >
+                    Agregar Usuario
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

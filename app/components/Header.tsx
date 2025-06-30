@@ -21,19 +21,13 @@ const Header = () => {
         </div>
 
         <div className="flex space-x-6 text-lg font-medium">
-          <Link
+          {/* <Link
             href="/welcome"
             className="text-white border-b-2 border-yellow-500 pb-2 hover:text-yellow-400 transition-colors"
           >
             Inicio
-          </Link>
+          </Link> */}
 
-          <Link
-            href="/memberships"
-            className="text-white border-b-2 border-yellow-500 pb-2 hover:text-yellow-400 transition-colors"
-          >
-            Membresías
-          </Link>
 
           <Link href="/login">
             <UserCircle className="h-8 w-8 text-white hover:text-yellow-400 transition-colors" />
