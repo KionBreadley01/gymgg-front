@@ -1,7 +1,7 @@
 'use client';
 
-import { image } from 'framer-motion/client';
-import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { div, image, p } from 'framer-motion/client';
+import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Products() {
@@ -11,6 +11,10 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   // Estado para controlar la página actual
   const [currentPage, setCurrentPage] = useState(1);
+  // controla estado de modal de Registro products
+  const [showAddForm, setShowAddForm] = useState(false);
+
+
   
   // Número de productos por página
   const productsPerPage = 5;
@@ -104,10 +108,14 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos</h1>
-            <button className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+          
+            <button
+            onClick={()=> setShowAddForm(true)}
+            className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Agregar Producto
             </button>
+
           </div>
         </div>
       </div>
@@ -332,6 +340,31 @@ export default function Products() {
             </p>
           </div>
         </div>
+      
+              {showAddForm && (
+              <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Producto</h3>
+       <button 
+                  onClick={() => setShowAddForm(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                > 
+                  <X className="h-5 w-5" />
+                </button>
+  
+</div>
+
+
+
+                </div>
+      
+                
+             
+                </div>
+              )}
+
+
       </div>
     </div>
   );
