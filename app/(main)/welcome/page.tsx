@@ -1,43 +1,52 @@
 // app/welcome/page.tsx
+'use client'
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export default function InformativeSection() {
-  const plans = [
-    {
-      name: 'Membresía Básica',
-      price: '$499 MXN/mes',
-      benefits: [
-        'Acceso a área de cardio',
-        'Uso de máquinas básicas',
-        'Horario matutino (6am-2pm)',
-        'Asesoría inicial gratuita'
-      ],
-    },
-    {
-      name: 'Membresía Plus',
-      price: '$799 MXN/mes',
-      benefits: [
-        'Acceso a todas las áreas',
-        'Uso ilimitado de máquinas',
-        'Horario extendido (6am-10pm)',
-        'Clases grupales incluidas',
-        '1 sesión de entrenador personal'
-      ],
-    },
-    {
-      name: 'Membresía Premium',
-      price: '$1,199 MXN/mes',
-      benefits: [
-        'Acceso 24/7',
-        'Uso de área VIP',
-        'Toalla y locker incluidos',
-        'Clases ilimitadas',
-        '4 sesiones de entrenador personal',
-        'Evaluación física mensual'
-      ],
-    },
-  ];
+  // Definir el tipo de datos y sus atributos.
+  type Membership = {
+    id: number,
+    name_membership: string,
+    price_membership: number,
+    offers_membership: number,
+    membership_duration: number
+  }
+
+  const [membership, setMembership] = useState<Membership[]>([])
+
+  // Se raliza la peticion al back
+  useEffect(() => {
+      fetch("http://127.0.0.1:8000/membership/")
+      .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
+      })
+      .then((data) => {
+          console.log("Datos: ", data)
+          setMembership(data)
+      })
+    .catch((error) => console.log("Error: ", error))
+  }, [])
+
+  // Si no hay membresias
+  if (membership.length === 0) {
+    return <div className="text-white">Cargando planes...</div>
+  }
+
+  // Se guardan los datos optenidos de la base de datos
+  const plans = membership.map((m) => ({
+    name: m.name_membership,
+    price: `$${m.price_membership}`,
+    benefits: ['Acceso limitado', 'Soporte por correo', 'Contenido básico']
+  }));
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">

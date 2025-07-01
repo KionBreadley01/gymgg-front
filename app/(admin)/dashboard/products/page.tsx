@@ -1,7 +1,8 @@
 'use client';
 
+import { image } from 'framer-motion/client';
 import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Products() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -14,82 +15,52 @@ export default function Products() {
   // Número de productos por página
   const productsPerPage = 5;
 
-  // Datos de ejemplo para la lista de productos con imágenes placeholder
-  const products = [
-    {
-      id: 1,
-      name: 'Proteína',
-      description: 'Proteína de suero de alta calidad para recuperación muscular.',
-      price: 29.99,
-      stock: 100,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 2,
-      name: 'Creatina',
-      description: 'Aumenta la fuerza y el rendimiento en entrenamientos intensos.',
-      price: 19.99,
-      stock: 50,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 3,
-      name: 'BCAA',
-      description: 'Aminoácidos esenciales para la recuperación y crecimiento muscular.',
-      price: 24.99,
-      stock: 75,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 4,
-      name: 'Pre-entreno',
-      description: 'Fórmula energética para maximizar el rendimiento en el gimnasio.',
-      price: 34.99,
-      stock: 10,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 5,
-      name: 'Proteína Caseína',
-      description: 'Proteína de absorción lenta ideal para antes de dormir.',
-      price: 32.99,
-      stock: 80,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 6,
-      name: 'Creatina HCL',
-      description: 'Creatina micronizada para mejor absorción y digestión.',
-      price: 22.99,
-      stock: 5,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 7,
-      name: 'BCAA 2:1:1',
-      description: 'Aminoácidos ramificados en proporción óptima.',
-      price: 26.99,
-      stock: 60,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
-    },
-    {
-      id: 8,
-      name: 'Pre-entreno Sin Estimulantes',
-      description: 'Fórmula energética sin cafeína para entrenamientos nocturnos.',
-      price: 29.99,
-      stock: 15,
-      category: 'Suplementos',
-      imageUrl: '/assets/images/products/creatine.jpeg'
+  // Definir el tipo de datos y sus atributos
+  type Products = {
+    id: number,
+    name_product: string,  
+    price_product: number,
+    description: string,
+    stock: number,
+    category: string
+  }
 
+  const [product, setProdct] = useState<Products[]>([])
+
+  // Se realiza la peticion al back
+  useEffect(() => {
+        fetch("http://127.0.0.1:8000/products/")
+        .then(async (response) => {
+            console.log("Response: ", response.status) 
+            if(!response.ok){
+                const text = await response.text()
+                console.log("Contenido de error: ", text) 
+                throw new Error(`Error al obtener los datos ${response.status}`)
+            }
+            return response.json()
+        })
+        .then((data) => {
+            console.log("Datos: ", data)
+            setProdct(data)
+        })
+      .catch((error) => console.log("Error: ", error))
+    }, [])
+  
+    // Si no hay membresias
+    if (product.length === 0) {
+      return <div className="text-white">Cargando planes...</div>
     }
-  ];
+  
+    // Se guardan los datos optenidos de la base de datos
+    const products = product.map((m) => ({
+      id: m.id,
+      name: m.name_product,  
+      price: m.price_product,
+      description: m.description,
+      stock: m.stock,
+      category: m.category,
+      image: '/assets/images/products/creatine.jpeg'
+    }));
 
   // Filtra la lista de productos basándose en el término de búsqueda.
   const filteredProducts = products.filter(product =>
@@ -183,7 +154,7 @@ export default function Products() {
                       {/* Imagen del producto */}
                       <div className="flex-shrink-0">
                         <img 
-                          src={product.imageUrl} 
+                          src={product.image} 
                           alt={product.name}
                           className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg shadow-md"
                           onError={(e) => {
