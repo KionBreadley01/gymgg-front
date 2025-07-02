@@ -1,7 +1,13 @@
 'use client';
 
-import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import apiService from '@/app/Service/apiService';
+import { data, div, image, p } from 'framer-motion/client';
+import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import AddProductModal from '../modal/AddProductModal';
+
 
 export default function Products() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -10,7 +16,13 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   // Estado para controlar la página actual
   const [currentPage, setCurrentPage] = useState(1);
-  
+  // controla estado de modal de Registro products
+  const [showAddForm, setShowAddForm] = useState(false);
+
+
+  useEffect(() => {
+  fetchProducts();
+}, []);
   // Número de productos por página
   const productsPerPage = 5;
 
@@ -23,28 +35,36 @@ export default function Products() {
     stock: number,
     category: string
   }
-
+  
   const [product, setProdct] = useState<Products[]>([])
 
-  // Se realiza la peticion al back
-  useEffect(() => {
-        fetch("http://127.0.0.1:8000/products/")
-        .then(async (response) => {
-            console.log("Response: ", response.status) 
-            if(!response.ok){
-                const text = await response.text()
-                console.log("Contenido de error: ", text) 
-                throw new Error(`Error al obtener los datos ${response.status}`)
-            }
-            return response.json()
-        })
-        .then((data) => {
-            console.log("Datos: ", data)
-            setProdct(data)
-        })
-      .catch((error) => console.log("Error: ", error))
-    }, [])
+
   
+  // Se realiza la peticion al back
+const fetchProducts= async () => {
+  try{
+           fetch("http://127.0.0.1:8000/products/")
+           .then(async (response) => {
+               console.log("Response: ", response.status) 
+               if(!response.ok){
+                   const text = await response.text()
+                   console.log("Contenido de error: ", text) 
+                   throw new Error(`Error al obtener los datos ${response.status}`)
+               }
+               return response.json()
+           })
+           .then((data) => {
+               console.log("Datos: ", data)
+               setProdct(data)
+           })
+         .catch((error) => console.log("Error: ", error))
+     
+
+  } catch (error){
+     console.log("Error: ", error);
+  }
+}
+
     // Si no hay membresias
     if (product.length === 0) {
       return <div className="text-white">Cargando planes...</div>
@@ -105,10 +125,14 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos</h1>
-            <button className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+          
+            <button
+            onClick={()=> setShowAddForm(true)}
+            className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Agregar Producto
             </button>
+
           </div>
         </div>
       </div>
@@ -334,6 +358,15 @@ export default function Products() {
             </p>
           </div>
         </div>
+      
+          {/* Modal para agregar usuario */}
+        <AddProductModal 
+  show={showAddForm}
+  onClose={() => setShowAddForm(false)}
+  onProductAdded={fetchProducts} 
+/>
+
+
       </div>
     </div>
   );
