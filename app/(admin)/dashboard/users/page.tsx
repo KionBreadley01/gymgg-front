@@ -1,22 +1,55 @@
 'use client';
 
-import { Search, User, Mail, Calendar, CreditCard, Edit, Trash2, Eye, MoreHorizontal, X, Plus } from 'lucide-react';
+import { 
+  Search, 
+  User, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  X, 
+  Plus,
+  ChevronLeft,
+  ChevronRight 
+} from 'lucide-react';
 import { useState } from 'react';
 
+// Tipos de datos
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  membership: 'Premium' | 'Plus' | 'Básica';
+  paymentDate: string;
+  endDate: string;
+  status: 'Activo' | 'Suspendido';
+}
+
+interface NewUser {
+  name: string;
+  email: string;
+  membership: 'Premium' | 'Plus' | 'Básica';
+  status: 'Activo' | 'Suspendido';
+}
+
 export default function UserManagement() {
+  // Estados principales
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [filterMembership, setFilterMembership] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newUser, setNewUser] = useState({
+  const [currentPage, setCurrentPage] = useState(1);
+  const [newUser, setNewUser] = useState<NewUser>({
     name: '',
     email: '',
     membership: 'Básica',
     status: 'Activo'
   });
 
+  // Configuración de paginación
+  const usersPerPage = 5;
+
   // Datos de ejemplo para la lista de usuarios
-  const users = [
+  const users: UserData[] = [
     {
       id: 1,
       name: 'Gustavo Angel Damian Gonzalez',
@@ -61,10 +94,28 @@ export default function UserManagement() {
       paymentDate: '10-05-25',
       endDate: '10-06-25',
       status: 'Activo'
-    }
+    },
   ];
 
-  // Filtra la lista de usuarios
+  // Funciones utilitarias
+  const getStatusColor = (status: string): string => {
+    const colors = {
+      'Activo': 'bg-green-100 text-green-800',
+      'Suspendido': 'bg-red-100 text-red-800'
+    };
+    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getMembershipColor = (membership: string): string => {
+    const colors = {
+      'Premium': 'bg-purple-100 text-purple-800',
+      'Plus': 'bg-blue-100 text-blue-800',
+      'Básica': 'bg-yellow-100 text-yellow-800'
+    };
+    return colors[membership as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Filtros y paginación
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -72,41 +123,23 @@ export default function UserManagement() {
     return matchesSearch && matchesMembership;
   });
 
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
   const selectedUserData = users.find(user => user.id === selectedUser);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Activo':
-        return 'bg-green-100 text-green-800';
-      case 'Suspendido':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  // Manejadores de eventos
+  const handleAddUser = () => {
+    if (!newUser.name || !newUser.email) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
     }
-  };
-
-  const getMembershipColor = (membership: string) => {
-    switch (membership) {
-      case 'Premium':
-        return 'bg-purple-100 text-purple-800';
-      case 'Plus':
-        return 'bg-blue-100 text-blue-800';
-      case 'Básica':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const handleAddUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Aquí iría la lógica para agregar el usuario a la base de datos
-    console.log('Nuevo usuario:', newUser);
     
-    // Simular agregar usuario 
+    console.log('Nuevo usuario:', newUser);
     alert('Usuario agregado exitosamente');
     
-    // Limpiar formulario y cerrar modal
     setNewUser({
       name: '',
       email: '',
@@ -116,11 +149,28 @@ export default function UserManagement() {
     setShowAddForm(false);
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof NewUser, value: string) => {
     setNewUser(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Resetear página cuando cambien los filtros
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (value: string) => {
+    setFilterMembership(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -142,19 +192,19 @@ export default function UserManagement() {
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-800 rounded-lg bg-white text-gray-900 placeholder-gray-500"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 placeholder="Buscar usuario por nombre o email..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
 
             {/* Filtro por membresía */}
             <div className="lg:w-48">
               <select
-                className="block w-full pl-10 pr-3 py-3 border border-gray-800 rounded-lg bg-white text-gray-900 placeholder-gray-500"
+                className="block w-full px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 value={filterMembership}
-                onChange={(e) => setFilterMembership(e.target.value)}
+                onChange={(e) => handleFilterChange(e.target.value)}
               >
                 <option value="all">Todas las membresías</option>
                 <option value="Premium">Premium</option>
@@ -194,10 +244,12 @@ export default function UserManagement() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredUsers.map((user) => (
+                  {currentUsers.map((user) => (
                     <tr 
                       key={user.id} 
-                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                        selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                      }`}
                       onClick={() => setSelectedUser(user.id)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -227,21 +279,55 @@ export default function UserManagement() {
               </table>
             </div>
 
-            {/* Footer de la tabla */}
-            <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-700">
-                  Mostrando {filteredUsers.length} de {users.length} usuarios
+            {/* Paginación - Siempre visible */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-sm text-gray-700 text-center sm:text-left">
+                  Mostrando {Math.min(indexOfFirstUser + 1, filteredUsers.length)} - {Math.min(indexOfLastUser, filteredUsers.length)} de {filteredUsers.length} usuarios
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50">
-                    Anterior
+                
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                      currentPage === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                    }`}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Anterior</span>
                   </button>
-                  <span className="px-3 py-1 text-sm text-gray-900 bg-white border border-gray-300 rounded">
-                    1
-                  </span>
-                  <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50">
-                    Siguiente
+
+                  {/* Numeración de página */}
+                  <div className="flex space-x-1">
+                    {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-2 sm:px-3 py-2 rounded-lg transition text-sm transform hover:scale-105 ${
+                          currentPage === page
+                            ? 'bg-yellow-600 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                      currentPage === totalPages || totalPages === 0
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                    }`}
+                  >
+                    <span className="hidden sm:inline">Siguiente</span>
+                    <ChevronRight className="h-4 w-4 ml-1" />
                   </button>
                 </div>
               </div>
@@ -325,7 +411,7 @@ export default function UserManagement() {
 
         {/* Modal para agregar usuario */}
         {showAddForm && (
-          <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Usuario</h3>
@@ -337,7 +423,7 @@ export default function UserManagement() {
                 </button>
               </div>
 
-              <form onSubmit={handleAddUser} className="p-6 space-y-4">
+              <div className="p-6 space-y-4">
                 {/* Nombre */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -380,7 +466,7 @@ export default function UserManagement() {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                     value={newUser.membership}
-                    onChange={(e) => handleInputChange('membership', e.target.value)}
+                    onChange={(e) => handleInputChange('membership', e.target.value as 'Premium' | 'Plus' | 'Básica')}
                   >
                     <option value="Básica">Básica</option>
                     <option value="Plus">Plus</option>
@@ -398,7 +484,7 @@ export default function UserManagement() {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                     value={newUser.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    onChange={(e) => handleInputChange('status', e.target.value as 'Activo' | 'Suspendido')}
                   >
                     <option value="Activo">Activo</option>
                     <option value="Suspendido">Suspendido</option>
@@ -415,17 +501,18 @@ export default function UserManagement() {
                     Cancelar
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleAddUser}
                     className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
                   >
                     Agregar Usuario
                   </button>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

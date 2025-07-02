@@ -96,8 +96,10 @@ const fetchProducts= async () => {
 
   // Función para cambiar de página
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setSelectedProduct(null);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      setSelectedProduct(null);
+    }
   };
 
   // Resetear página cuando se realiza una búsqueda
@@ -281,60 +283,61 @@ const fetchProducts= async () => {
               </div>
             ))
           )}
-        </div>
 
-        {/* Paginación */}
-        {filteredProducts.length > productsPerPage && (
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between bg-white px-4 sm:px-6 py-4 rounded-xl shadow-md gap-4">
-            <div className="text-sm text-gray-600 text-center sm:text-left">
-              Mostrando {indexOfFirstProduct + 1} - {Math.min(indexOfLastProduct, filteredProducts.length)} de {filteredProducts.length} productos
-            </div>
-            
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
-                  currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
-                }`}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Anterior</span>
-              </button>
-
-              {/* Numeración de página */}
-              <div className="flex space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-2 sm:px-3 py-2 rounded-lg transition text-sm transform hover:scale-105 ${
-                      currentPage === page
-                        ? 'bg-yellow-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+          {/* Paginación - Siempre visible */}
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-gray-700 text-center sm:text-left">
+                Mostrando {Math.min(indexOfFirstProduct + 1, filteredProducts.length)} - {Math.min(indexOfLastProduct, filteredProducts.length)} de {filteredProducts.length} productos
               </div>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
-                  currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
-                }`}
-              >
-                <span className="hidden sm:inline">Siguiente</span>
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </button>
+              
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                  }`}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Anterior</span>
+                </button>
+
+                {/* Numeración de página */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-2 sm:px-3 py-2 rounded-lg transition text-sm transform hover:scale-105 ${
+                        currentPage === page
+                          ? 'bg-yellow-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                    currentPage === totalPages || totalPages === 0
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                  }`}
+                >
+                  <span className="hidden sm:inline">Siguiente</span>
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </button>
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Estadísticas rápidas */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
