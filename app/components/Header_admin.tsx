@@ -59,7 +59,7 @@ const Header_admin = () => {
              <Link href="/memberships" className="hover:text-yellow-400 transition-colors">
                 Membresías
               </Link>
-              <Link href="/dashboard/Sales" className="hover:text-yellow-400 transition-colors">
+              <Link href="/dashboard/sales" className="hover:text-yellow-400 transition-colors">
                 Ventas
               </Link>
             </nav>

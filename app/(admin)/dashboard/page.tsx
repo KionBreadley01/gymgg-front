@@ -21,7 +21,7 @@ export default function AdminDashboard() {
               description: 'Gestión de usuarios'
             },
             {
-              href: '/products',
+              href: '/dashboard/products',
               title: 'Productos',
               icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Administración de productos'
@@ -33,7 +33,7 @@ export default function AdminDashboard() {
               description: 'Control de membresías'
             },
               {
-              href: '#',
+              href: '/dashboard/sales',
               title: 'Ventas',
               icon: <ShoppingBag className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Control de ventas'
