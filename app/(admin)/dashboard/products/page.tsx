@@ -1,8 +1,13 @@
 'use client';
 
-import { div, image, p } from 'framer-motion/client';
+import apiService from '@/app/Service/apiService';
+import { data, div, image, p } from 'framer-motion/client';
 import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import AddProductModal from '../modal/AddProductModal';
+
 
 export default function Products() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -15,7 +20,9 @@ export default function Products() {
   const [showAddForm, setShowAddForm] = useState(false);
 
 
-  
+  useEffect(() => {
+  fetchProducts();
+}, []);
   // Número de productos por página
   const productsPerPage = 5;
 
@@ -28,28 +35,36 @@ export default function Products() {
     stock: number,
     category: string
   }
-
+  
   const [product, setProdct] = useState<Products[]>([])
 
-  // Se realiza la peticion al back
-  useEffect(() => {
-        fetch("http://127.0.0.1:8000/products/")
-        .then(async (response) => {
-            console.log("Response: ", response.status) 
-            if(!response.ok){
-                const text = await response.text()
-                console.log("Contenido de error: ", text) 
-                throw new Error(`Error al obtener los datos ${response.status}`)
-            }
-            return response.json()
-        })
-        .then((data) => {
-            console.log("Datos: ", data)
-            setProdct(data)
-        })
-      .catch((error) => console.log("Error: ", error))
-    }, [])
+
   
+  // Se realiza la peticion al back
+const fetchProducts= async () => {
+  try{
+           fetch("http://127.0.0.1:8000/products/")
+           .then(async (response) => {
+               console.log("Response: ", response.status) 
+               if(!response.ok){
+                   const text = await response.text()
+                   console.log("Contenido de error: ", text) 
+                   throw new Error(`Error al obtener los datos ${response.status}`)
+               }
+               return response.json()
+           })
+           .then((data) => {
+               console.log("Datos: ", data)
+               setProdct(data)
+           })
+         .catch((error) => console.log("Error: ", error))
+     
+
+  } catch (error){
+     console.log("Error: ", error);
+  }
+}
+
     // Si no hay membresias
     if (product.length === 0) {
       return <div className="text-white">Cargando planes...</div>
@@ -341,28 +356,12 @@ export default function Products() {
           </div>
         </div>
       
-              {showAddForm && (
-              <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Producto</h3>
-       <button 
-                  onClick={() => setShowAddForm(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                > 
-                  <X className="h-5 w-5" />
-                </button>
-  
-</div>
-
-
-
-                </div>
-      
-                
-             
-                </div>
-              )}
+          {/* Modal para agregar usuario */}
+        <AddProductModal 
+  show={showAddForm}
+  onClose={() => setShowAddForm(false)}
+  onProductAdded={fetchProducts} 
+/>
 
 
       </div>
