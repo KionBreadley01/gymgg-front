@@ -80,11 +80,12 @@ useEffect(() => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Nombre producto</label>
             <input
               type="text"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              placeholder="Ingresa el nombre"
+              name="name"
               value={dataTitle}
               onChange={(e) => setDataTitle(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Nombre del producto"
+              required
             />
           </div>
 
@@ -118,7 +119,7 @@ useEffect(() => {
               <input
                 type="number"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="00.00"
                 value={dataPrice}
                 onChange={(e) => setDataPrice(e.target.value)}
@@ -130,7 +131,7 @@ useEffect(() => {
               <input
                 type="number"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0"
                 value={dataStock}
                 onChange={(e) => setDataStock(e.target.value)}
@@ -142,7 +143,7 @@ useEffect(() => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
             <textarea
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Descripción del producto"
               value={dataDescription}
               onChange={(e) => setDataDescription(e.target.value)}

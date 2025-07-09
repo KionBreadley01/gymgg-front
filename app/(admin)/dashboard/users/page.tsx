@@ -185,16 +185,16 @@ export default function UserManagement() {
         {/* Filtros y búsqueda */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Barra de búsqueda */}
+        {/* Barra de búsqueda */}
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="Buscar usuario por nombre o email..."
-                value={searchTerm}
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Buscar usuario por nombre o email..."
+            value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
@@ -246,14 +246,14 @@ export default function UserManagement() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentUsers.map((user) => (
                     <tr 
-                      key={user.id} 
+              key={user.id}
                       className={`hover:bg-gray-50 transition-colors cursor-pointer ${
                         selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
                       }`}
-                      onClick={() => setSelectedUser(user.id)}
-                    >
+              onClick={() => setSelectedUser(user.id)}
+            >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
+                  <div className="flex items-center">
                           <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
                             <User className="h-5 w-5 text-yellow-600" />
                           </div>
@@ -383,8 +383,8 @@ export default function UserManagement() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
                     <span className="text-sm text-gray-900">{selectedUserData.endDate}</span>
-                  </div>
                 </div>
+              </div>
 
                 {/* Acciones */}
                 <div className="pt-4 border-t border-gray-200">
@@ -411,7 +411,7 @@ export default function UserManagement() {
 
         {/* Modal para agregar usuario */}
         {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Usuario</h3>
@@ -433,7 +433,7 @@ export default function UserManagement() {
                     type="text"
                     id="name"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Ingresa el nombre completo"
                     value={newUser.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
@@ -449,7 +449,7 @@ export default function UserManagement() {
                     type="email"
                     id="email"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="ejemplo@email.com"
                     value={newUser.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
@@ -515,4 +515,4 @@ export default function UserManagement() {
       </div>
     </div>
   );
-}
+} 
