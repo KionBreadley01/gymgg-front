@@ -39,44 +39,44 @@ export default function Products() {
   const [product, setProdct] = useState<Products[]>([])
 
   // Se realiza la peticion al back
-const fetchProducts= async () => {
-  try{
-      fetch("http://127.0.0.1:8000/products/")
-      .then(async (response) => {
-        console.log("Response: ", response.status) 
-        if(!response.ok){
-            const text = await response.text()
-            console.log("Contenido de error: ", text) 
-            throw new Error(`Error al obtener los datos ${response.status}`)
-        }
-        return response.json()
-        })
-          .then((data) => {
-            console.log("Datos: ", data)
-            setProdct(data)
+  const fetchProducts= async () => {
+    try{
+        fetch("http://127.0.0.1:8000/products/")
+        .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
           })
-        .catch((error) => console.log("Error: ", error)) 
+            .then((data) => {
+              console.log("Datos: ", data)
+              setProdct(data)
+            })
+          .catch((error) => console.log("Error: ", error)) 
 
-  } catch (error){
-    console.log("Error: ", error);
-  }
-}
-
-    // Si no hay productos
-    if (product.length === 0) {
-      return <div className="text-white">¡Sin productos!</div>
+    } catch (error){
+      console.log("Error: ", error);
     }
+  }
+
+  // Si no hay productos
+  if (product.length === 0) {
+    return <div className="text-white">¡Sin productos!</div>
+  }
   
-    // Se guardan los datos optenidos de la base de datos
-    const products = product.map((m) => ({
-      id: m.id,
-      name: m.name_product,  
-      price: m.price_product,
-      description: m.description,
-      stock: m.stock,
-      category: m.category,
-      image: '/assets/images/products/creatine.jpeg'
-    }));
+  // Se guardan los datos optenidos de la base de datos
+  const products = product.map((m) => ({
+    id: m.id,
+    name: m.name_product,  
+    price: m.price_product,
+    description: m.description,
+    stock: m.stock,
+    category: m.category,
+    image: '/assets/images/products/creatine.jpeg'
+  }));
 
   // Filtra la lista de productos basándose en el término de búsqueda.
   const filteredProducts = products.filter(product =>

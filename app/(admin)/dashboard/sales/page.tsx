@@ -17,72 +17,106 @@ export default function SalesPage() {
   // Número de ventas por página
   const salesPerPage = 8;
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   // Definir el tipo de datos y sus atributos
+  type SaleItem = {
+    id: number,
+    product: number,
+    name_product: string,
+    quantity: number,
+    unit_price: String,
+    total_price: number,
+  }
+
+  type UserName = {
+    id: string;
+    name: string;
+  };
+
   type Sale = {
     id: number,
-    customer_name: string,
-    customer_email: string,
-    total_amount: number,
-    date: string,
-    status: string,
-    payment_method: string,
-    items: Array<{
-      product_name: string,
-      quantity: number,
-      unit_price: number,
-      subtotal: number
-    }>
+    user: UserName,
+    user_email: String,
+    items: SaleItem[],
+    total_price: number,
+    created_at: string,
   }
 
-  const [sales, setSales] = useState<Sale[]>([])
+  const [sale, setSales] = useState<Sale[]>([])
 
   // Se realiza la peticion al back (simulada con datos de ejemplo)
-  useEffect(() => {
-    // Simulación de datos de ventas
-    const mockSales: Sale[] = [
-      {
-        id: 1,
-        customer_name: "Juan Manuel Hernández Sanchez",
-        customer_email: "juan@example.com",
-        total_amount: 89.99,
-        date: "2025-07-01T10:30:00",
-        status: "completed",
-        payment_method: "tarjeta",
-        items: [
-          { product_name: "Proteína Whey", quantity: 1, unit_price: 45.99, subtotal: 45.99 },
-          { product_name: "Creatina", quantity: 2, unit_price: 22.00, subtotal: 44.00 }
-        ]
-      },
-    ];
+  const fetchProducts= async () => {
+    try{
+      fetch("http://127.0.0.1:8000/Sales/")
+      .then(async (response) => {
+        console.log("Response: ", response.status) 
+        if(!response.ok){
+            const text = await response.text()
+            console.log("Contenido de error: ", text) 
+            throw new Error(`Error al obtener los datos ${response.status}`)
+        }
+        return response.json()
+        })
+          .then((data) => {
+            console.log("Datos: ", data)
+            setSales(data)
+          })
+        .catch((error) => console.log("Error: ", error)) 
 
-    // Simular delay de API
-    setTimeout(() => {
-      setSales(mockSales);
-    }, 500);
-  }, [])
-  
-  // Si no hay ventas
-  if (sales.length === 0) {
-    return <div className="text-white">Cargando ventas...</div>
+    } catch (error){
+      console.log("Error: ", error);
+    }
   }
 
+  // Si no hay ventas
+  if (sale.length === 0) {
+    return <div className="text-white">¡Sin Ventas!</div>
+  }
+
+  // Se guardan los datos optenidos de la base de datos
+  const sales = sale.map((m) => ({
+    id: m.id,
+    user: m.user,  
+    user_email: m.user_email,
+    items: m.items,
+    total_price: m.total_price,
+    status: "completed",
+    created_at: m.created_at,
+  }));
+
   // Función para formatear fecha
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Fecha inválida";
+  }
+  
+  const datePart = date.toLocaleDateString('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  const timePart = date.toLocaleTimeString('es-MX', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  return `${datePart} - ${timePart}`;
+}
+
+
+  console.log(sales)
 
   // Función para filtrar por fecha
   const filterByDate = (sale: Sale) => {
     if (dateFilter === 'all') return true;
     
-    const saleDate = new Date(sale.date);
+    const saleDate = new Date(sale.created_at);
     const now = new Date();
     
     switch (dateFilter) {
@@ -101,12 +135,13 @@ export default function SalesPage() {
 
   // Filtra la lista de ventas basándose en el término de búsqueda y filtro de fecha.
   const filteredSales = sales.filter(sale =>
-    (sale.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.total_amount.toString().includes(searchTerm) ||
-    sale.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.payment_method.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    filterByDate(sale)
+    (
+      sale.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.total_price.toString().includes(searchTerm) ||
+      sale.status.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      filterByDate(sale)
+    )
   );
 
   // Cálculo de paginación
@@ -253,31 +288,31 @@ export default function SalesPage() {
                         <div className="flex items-center">
                           <User className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">{sale.customer_name}</p>
-                            <p className="text-xs text-gray-500 truncate">{sale.customer_email}</p>
+                            <p className="text-sm font-medium text-gray-800 truncate">{sale.user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{sale.user_email}</p>
                           </div>
                         </div>
                         
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm sm:text-base">
-                            <span className="font-bold text-green-600">${sale.total_amount.toFixed(2)}</span>
+                            <span className="font-bold text-green-600">${sale.total_price.toFixed(2)}</span>
                           </span>
                         </div>
                         
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm text-gray-600">
-                            {formatDate(sale.date)}
+                            {formatDate(sale.created_at)}
                           </span>
                         </div>
                         
-                        <div className="flex items-center">
+                        {/* <div className="flex items-center">
                           <FileText className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm text-gray-600 capitalize">
                             {sale.payment_method}
                           </span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                     
@@ -299,17 +334,17 @@ export default function SalesPage() {
                     <div className="mb-4">
                       <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Productos:</h4>
                       <div className="bg-gray-50 rounded-lg p-4">
-                        {sale.items.map((item, index) => (
+                        {sale.items?.map((item, index) => (
                           <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
                             <div className="flex-1">
-                              <p className="font-medium text-gray-800 text-sm">{item.product_name}</p>
+                              <p className="font-medium text-gray-800 text-sm">{item.name_product}</p>
                               <p className="text-xs text-gray-500">
-                                {item.quantity} x ${item.unit_price.toFixed(2)}
+                                {item.quantity} x ${item.unit_price}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-800 text-sm">
-                                ${item.subtotal.toFixed(2)}
+                                ${item.total_price.toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -318,7 +353,7 @@ export default function SalesPage() {
                           <div className="flex justify-between items-center">
                             <p className="font-bold text-gray-800">Total:</p>
                             <p className="font-bold text-green-600 text-lg">
-                              ${sale.total_amount.toFixed(2)}
+                              ${sale.total_price.toFixed(2)}
                             </p>
                           </div>
                         </div>
@@ -427,7 +462,7 @@ export default function SalesPage() {
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md transform hover:scale-105 transition-transform">
             <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">Ingresos Totales</h3>
             <p className="text-2xl sm:text-3xl font-bold text-blue-600">
-              ${sales.filter(s => s.status === 'completed').reduce((total, s) => total + s.total_amount, 0).toFixed(2)}
+              ${sales.filter(s => s.status === 'completed').reduce((total, s) => total + s.total_price, 0).toFixed(2)}
             </p>
           </div>
         </div>
