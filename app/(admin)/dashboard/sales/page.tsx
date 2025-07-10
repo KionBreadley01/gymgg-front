@@ -1,5 +1,5 @@
 // app/dashboard/sales/page.tsx
-'use client';
+'use client'
 
 import { Search, ShoppingCart, DollarSign, Calendar, User, Eye, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
