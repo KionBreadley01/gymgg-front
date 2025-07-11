@@ -24,7 +24,7 @@ export default function PasswordRecovery() {
             <label className="block text-gray-800 mb-2 font-medium">Correo Electrónico</label>
             <input
               type="email"
-              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition text-black"
+              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="tu@email.com"
               required
             />
