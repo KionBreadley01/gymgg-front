@@ -11,19 +11,9 @@ import {
   ChevronLeft,
   ChevronRight 
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Tipos de datos
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  membership: 'Premium' | 'Plus' | 'Básica';
-  paymentDate: string;
-  endDate: string;
-  status: 'Activo' | 'Suspendido';
-}
-
 interface NewUser {
   name: string;
   email: string;
@@ -48,54 +38,71 @@ export default function UserManagement() {
   // Configuración de paginación
   const usersPerPage = 5;
 
-  // Datos de ejemplo para la lista de usuarios
-  const users: UserData[] = [
-    {
-      id: 1,
-      name: 'Gustavo Angel Damian Gonzalez',
-      email: 'Gustavo@gmail.com',
-      membership: 'Premium',
-      paymentDate: '02-05-25',
-      endDate: '06-06-25',
-      status: 'Activo'
-    },
-    {
-      id: 2,
-      name: 'Martha Isabel Hernández Fernández',
-      email: 'martha@example.com',
-      membership: 'Básica',
-      paymentDate: '15-05-25',
-      endDate: '15-06-25',
-      status: 'Activo'
-    },
-    {
-      id: 3,
-      name: 'Juan Manuel Hernández Sanchez',
-      email: 'juan@example.com',
-      membership: 'Plus',
-      paymentDate: '01-05-25',
-      endDate: '01-06-25',
-      status: 'Suspendido'
-    },
-    {
-      id: 4,
-      name: 'Ana María López Torres',
-      email: 'ana@example.com',
-      membership: 'Premium',
-      paymentDate: '20-05-25',
-      endDate: '20-06-25',
-      status: 'Activo'
-    },
-    {
-      id: 5,
-      name: 'Carlos Eduardo Morales',
-      email: 'carlos@example.com',
-      membership: 'Básica',
-      paymentDate: '10-05-25',
-      endDate: '10-06-25',
-      status: 'Activo'
-    },
-  ];
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  type User = {
+    id: number,
+    email: string,
+    name: string,
+    membership: string,
+    is_active: Boolean,
+    date_pay: Date,
+    date_expiration: Date,
+  }
+  
+  const [user, setUser] = useState<User[]>([])
+
+  // Se realiza la peticion al back
+  const fetchProducts= async () => {
+    try{
+        fetch("http://127.0.0.1:8000/useraccount/")
+        .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
+          })
+            .then((data) => {
+              console.log("Datos: ", data)
+              setUser(data)
+            })
+          .catch((error) => console.log("Error: ", error)) 
+
+    } catch (error){
+      console.log("Error: ", error);
+    }
+  }
+
+  // Si no hay usuarios
+  if (user.length === 0) {
+    return <div className="text-white">¡Sin Usuarios!</div>
+  }
+
+  // Se guardan los datos optenidos de la base de datos
+  const users = user.map((m) => ({
+    id: m.id,
+    email: m.email,
+    name: m.name,
+    membership: m.membership,
+    is_active: m.is_active,
+    date_pay: new Date(m.date_pay),
+    date_expiration: new Date(m.date_expiration),
+  }));
+
+  // Formato de la fecha ej: 03/07/2025
+  function formatDate(date: Date): string {
+    return date.toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  }
+
 
   // Funciones utilitarias
   const getStatusColor = (status: string): string => {
@@ -118,7 +125,7 @@ export default function UserManagement() {
   // Filtros y paginación
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
     return matchesSearch && matchesMembership;
   });
@@ -269,8 +276,8 @@ export default function UserManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                          {user.status}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
+                          {user.is_active ? "Activo" : "Suspendido"}
                         </span>
                       </td>
                     </tr>
@@ -370,19 +377,19 @@ export default function UserManagement() {
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Estado:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.status)}`}>
-                      {selectedUserData.status}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.is_active ? "Activo" : "Suspendido")}`}>
+                      {selectedUserData.is_active ? "Activo" : "Suspendido"}
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Pago:</span>
-                    <span className="text-sm text-gray-900">{selectedUserData.paymentDate}</span>
+                    <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_pay)}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
-                    <span className="text-sm text-gray-900">{selectedUserData.endDate}</span>
+                    <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
                   </div>
                 </div>
 

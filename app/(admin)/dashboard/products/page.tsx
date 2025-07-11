@@ -21,8 +21,8 @@ export default function Products() {
 
 
   useEffect(() => {
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, []);
   // Número de productos por página
   const productsPerPage = 5;
 
@@ -38,48 +38,45 @@ export default function Products() {
   
   const [product, setProdct] = useState<Products[]>([])
 
-
-  
   // Se realiza la peticion al back
-const fetchProducts= async () => {
-  try{
-           fetch("http://127.0.0.1:8000/products/")
-           .then(async (response) => {
-               console.log("Response: ", response.status) 
-               if(!response.ok){
-                   const text = await response.text()
-                   console.log("Contenido de error: ", text) 
-                   throw new Error(`Error al obtener los datos ${response.status}`)
-               }
-               return response.json()
-           })
-           .then((data) => {
-               console.log("Datos: ", data)
-               setProdct(data)
-           })
-         .catch((error) => console.log("Error: ", error))
-     
+  const fetchProducts= async () => {
+    try{
+        fetch("http://127.0.0.1:8000/products/")
+        .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
+          })
+            .then((data) => {
+              console.log("Datos: ", data)
+              setProdct(data)
+            })
+          .catch((error) => console.log("Error: ", error)) 
 
-  } catch (error){
-     console.log("Error: ", error);
-  }
-}
-
-    // Si no hay membresias
-    if (product.length === 0) {
-      return <div className="text-white">Cargando planes...</div>
+    } catch (error){
+      console.log("Error: ", error);
     }
+  }
+
+  // Si no hay productos
+  if (product.length === 0) {
+    return <div className="text-white">¡Sin productos!</div>
+  }
   
-    // Se guardan los datos optenidos de la base de datos
-    const products = product.map((m) => ({
-      id: m.id,
-      name: m.name_product,  
-      price: m.price_product,
-      description: m.description,
-      stock: m.stock,
-      category: m.category,
-      image: '/assets/images/products/creatine.jpeg'
-    }));
+  // Se guardan los datos optenidos de la base de datos
+  const products = product.map((m) => ({
+    id: m.id,
+    name: m.name_product,  
+    price: m.price_product,
+    description: m.description,
+    stock: m.stock,
+    category: m.category,
+    image: '/assets/images/products/creatine.jpeg'
+  }));
 
   // Filtra la lista de productos basándose en el término de búsqueda.
   const filteredProducts = products.filter(product =>
@@ -237,8 +234,8 @@ const fetchProducts= async () => {
                         'bg-red-100 text-red-800'
                       }`}>
                         {product.stock > 50 ? 'En Stock' :
-                         product.stock > 20 ? 'Stock Medio' :
-                         'Stock Bajo'}
+                          product.stock > 20 ? 'Stock Medio' :
+                          'Stock Bajo'}
                       </span>
                     </div>
                   </div>
@@ -354,7 +351,7 @@ const fetchProducts= async () => {
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md sm:col-span-2 lg:col-span-1 transform hover:scale-105 transition-transform">
             <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">Valor Total del Inventario</h3>
             <p className="text-2xl sm:text-3xl font-bold text-green-600">
-              ${products.reduce((total, p) => total + (p.price * p.stock), 0).toFixed(2)}
+              ${products.reduce((total, p) => total + (p.price * p.stock), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
         </div>
