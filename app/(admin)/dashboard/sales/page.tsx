@@ -306,13 +306,6 @@ function formatDate(dateString: string): string {
                             {formatDate(sale.created_at)}
                           </span>
                         </div>
-                        
-                        {/* <div className="flex items-center">
-                          <FileText className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
-                          <span className="text-sm text-gray-600 capitalize">
-                            {sale.payment_method}
-                          </span>
-                        </div> */}
                       </div>
                     </div>
                     
