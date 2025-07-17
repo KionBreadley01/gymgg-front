@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { LogOut, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -11,6 +11,10 @@ const Header_admin = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   // Hook de Next.js para manejar la navegación programática.
   const router = useRouter();
+  // Hook para obtener la ruta actual
+  const pathname = usePathname();
+
+
 
   // Muestra el diálogo de confirmación.
   const handleLogout = () => {
@@ -26,6 +30,14 @@ const Header_admin = () => {
   // Simplemente oculta el diálogo de confirmación.
   const cancelLogout = () => {
     setShowConfirmation(false);
+  };
+
+  // Función para determinar si un enlace está activo
+  const isActiveLink = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard';
+    }
+    return pathname.startsWith(href);
   };
 
   return (
@@ -47,19 +59,54 @@ const Header_admin = () => {
             
             {/* Navigation Links */}
             <nav className="flex items-center space-x-6">
-              <Link href="/dashboard" className="hover:text-yellow-400 transition-colors">
+              <Link 
+                href="/dashboard" 
+                className={`transition-colors ${
+                  isActiveLink('/dashboard') 
+                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+                    : 'hover:text-yellow-400'
+                }`}
+              >
                 Panel
               </Link>
-              <Link href="/dashboard/users" className="hover:text-yellow-400 transition-colors">
+              <Link 
+                href="/dashboard/users" 
+                className={`transition-colors ${
+                  isActiveLink('/dashboard/users') 
+                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+                    : 'hover:text-yellow-400'
+                }`}
+              >
                 Usuarios
               </Link>
-              <Link href="/dashboard/products" className="hover:text-yellow-400 transition-colors">
+              <Link 
+                href="/dashboard/products" 
+                className={`transition-colors ${
+                  isActiveLink('/dashboard/products') 
+                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+                    : 'hover:text-yellow-400'
+                }`}
+              >
                 Productos
               </Link>
-             <Link href="/memberships" className="hover:text-yellow-400 transition-colors">
+              <Link 
+                href="/memberships" 
+                className={`transition-colors ${
+                  isActiveLink('/memberships') 
+                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+                    : 'hover:text-yellow-400'
+                }`}
+              >
                 Membresías
               </Link>
-              <Link href="/dashboard/sales" className="hover:text-yellow-400 transition-colors">
+              <Link 
+                href="/dashboard/sales" 
+                className={`transition-colors ${
+                  isActiveLink('/dashboard/sales') 
+                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+                    : 'hover:text-yellow-400'
+                }`}
+              >
                 Ventas
               </Link>
             </nav>

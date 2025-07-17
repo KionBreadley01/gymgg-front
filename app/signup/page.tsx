@@ -33,7 +33,7 @@ export default function SignUp() {
             <label className="block text-gray-800 mb-2 font-medium">Usuario</label>
             <input
               type="text"
-              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition text-black"
+              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="Ingrese su usuario"
               required
             />
@@ -43,7 +43,7 @@ export default function SignUp() {
             <label className="block text-gray-800 mb-2 font-medium">Correo electrónico</label>
             <input
               type="text"
-              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition text-black"
+              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="Ingrese su correo electrónico"
               required
             />
@@ -53,7 +53,7 @@ export default function SignUp() {
             <label className="block text-gray-800 mb-2 font-medium">Contraseña</label>
             <input
               type="password"
-              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition text-black"
+              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="Escriba su contraseña"
               required
             />
@@ -62,7 +62,7 @@ export default function SignUp() {
             <label className="block text-gray-800 mb-2 font-medium">Contraseña</label>
             <input
               type="repeat password"
-              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition text-black"
+              className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="Escriba nuevamente su contraseña"
               required
             />

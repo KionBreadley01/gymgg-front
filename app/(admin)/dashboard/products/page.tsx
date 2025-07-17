@@ -23,8 +23,8 @@ export default function Products() {
   const [showAddForm2, setShowAddForm2] = useState(false);
 
   useEffect(() => {
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, []);
   // Número de productos por página
   const productsPerPage = 5;
 
@@ -38,50 +38,47 @@ export default function Products() {
     category: string
   }
   
-  const [productData, setProdct] = useState<Products[]>([])
+  const [product, setProdct] = useState<Products[]>([])
 
-
-  
   // Se realiza la peticion al back
-const fetchProducts= async () => {
-  try{
-           fetch("http://127.0.0.1:8000/products/")
-           .then(async (response) => {
-               console.log("Response: ", response.status) 
-               if(!response.ok){
-                   const text = await response.text()
-                   console.log("Contenido de error: ", text) 
-                   throw new Error(`Error al obtener los datos ${response.status}`)
-               }
-               return response.json()
-           })
-           .then((data) => {
-               console.log("Datos: ", data)
-               setProdct(data)
-           })
-         .catch((error) => console.log("Error: ", error))
-     
+  const fetchProducts= async () => {
+    try{
+        fetch("http://127.0.0.1:8000/products/")
+        .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
+          })
+            .then((data) => {
+              console.log("Datos: ", data)
+              setProdct(data)
+            })
+          .catch((error) => console.log("Error: ", error)) 
 
-  } catch (error){
-     console.log("Error: ", error);
-  }
-}
-
-    // Si no hay membresias
-    if (productData.length === 0) {
-      return <div className="text-white">Cargando planes...</div>
+    } catch (error){
+      console.log("Error: ", error);
     }
+  }
+
+  // Si no hay productos
+  if (product.length === 0) {
+    return <div className="text-white">¡Sin productos!</div>
+  }
   
-    // Se guardan los datos optenidos de la base de datos
-    const products = productData.map((m) => ({
-      id: m.id,
-      name: m.name_product,  
-      price: m.price_product,
-      description: m.description,
-      stock: m.stock,
-      category: m.category,
-      image: '/assets/images/products/creatine.jpeg'
-    }));
+  // Se guardan los datos optenidos de la base de datos
+  const products = product.map((m) => ({
+    id: m.id,
+    name: m.name_product,  
+    price: m.price_product,
+    description: m.description,
+    stock: m.stock,
+    category: m.category,
+    image: '/assets/images/products/creatine.jpeg'
+  }));
 
   // Filtra la lista de productos basándose en el término de búsqueda.
   const filteredProducts = products.filter(product =>
@@ -121,16 +118,6 @@ const fetchProducts= async () => {
     }
     return selectedProduct
   };
-  
-  const handledeleteProduct = (ProductsSele: string) =>{
-    
-    alert(`seguro que quieres borrar ${ProductsSele}`)
-    
-    fetchProducts()
-  }
-  const selectedProductData = productData.find(p => p.id === selectedProduct);
-  
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -160,10 +147,10 @@ const fetchProducts= async () => {
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="Buscar producto por nombre, precio o categoría..."
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Buscar producto..."
               value={searchTerm}
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -251,8 +238,8 @@ const fetchProducts= async () => {
                         'bg-red-100 text-red-800'
                       }`}>
                         {product.stock > 50 ? 'En Stock' :
-                         product.stock > 20 ? 'Stock Medio' :
-                         'Stock Bajo'}
+                          product.stock > 20 ? 'Stock Medio' :
+                          'Stock Bajo'}
                       </span>
                     </div>
                   </div>
@@ -292,7 +279,7 @@ const fetchProducts= async () => {
                       </button>
                       <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition text-sm justify-center sm:col-span-2 lg:col-span-1 transform hover:scale-105"
-                        onClick={() => handledeleteProduct(product.name)}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Eliminar
@@ -374,7 +361,7 @@ const fetchProducts= async () => {
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md sm:col-span-2 lg:col-span-1 transform hover:scale-105 transition-transform">
             <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">Valor Total del Inventario</h3>
             <p className="text-2xl sm:text-3xl font-bold text-green-600">
-              ${products.reduce((total, p) => total + (p.price * p.stock), 0).toFixed(2)}
+              ${products.reduce((total, p) => total + (p.price * p.stock), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
         </div>
