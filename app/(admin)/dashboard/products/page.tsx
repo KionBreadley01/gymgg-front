@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AddProductModal from '../modal/AddProductModal';
+import UpdateProductModal from '../modal/UpdateProductModel';
 
 
 export default function Products() {
@@ -17,8 +18,9 @@ export default function Products() {
   // Estado para controlar la página actual
   const [currentPage, setCurrentPage] = useState(1);
   // controla estado de modal de Registro products
+  
   const [showAddForm, setShowAddForm] = useState(false);
-
+  const [showAddForm2, setShowAddForm2] = useState(false);
 
   useEffect(() => {
   fetchProducts();
@@ -36,7 +38,7 @@ export default function Products() {
     category: string
   }
   
-  const [product, setProdct] = useState<Products[]>([])
+  const [productData, setProdct] = useState<Products[]>([])
 
 
   
@@ -66,12 +68,12 @@ const fetchProducts= async () => {
 }
 
     // Si no hay membresias
-    if (product.length === 0) {
+    if (productData.length === 0) {
       return <div className="text-white">Cargando planes...</div>
     }
   
     // Se guardan los datos optenidos de la base de datos
-    const products = product.map((m) => ({
+    const products = productData.map((m) => ({
       id: m.id,
       name: m.name_product,  
       price: m.price_product,
@@ -115,8 +117,20 @@ const fetchProducts= async () => {
       setSelectedProduct(null);
     } else {
       setSelectedProduct(productId);
+   
     }
+    return selectedProduct
   };
+  
+  const handledeleteProduct = (ProductsSele: string) =>{
+    
+    alert(`seguro que quieres borrar ${ProductsSele}`)
+    
+    fetchProducts()
+  }
+  const selectedProductData = productData.find(p => p.id === selectedProduct);
+  
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -249,10 +263,16 @@ const fetchProducts= async () => {
                   <div className="mt-4 pt-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200 ml-0 sm:ml-24">
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                   
                       <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={()=> {
+                          setShowAddForm2(true);
+                          setSelectedProduct(product.id);
+                           console.log(product.id)
+                        }}
                       >
+
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </button>
@@ -272,7 +292,7 @@ const fetchProducts= async () => {
                       </button>
                       <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition text-sm justify-center sm:col-span-2 lg:col-span-1 transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => handledeleteProduct(product.name)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Eliminar
@@ -365,6 +385,16 @@ const fetchProducts= async () => {
   onClose={() => setShowAddForm(false)}
   onProductAdded={fetchProducts} 
 />
+
+  <UpdateProductModal
+    show={showAddForm2}
+    onClose={() => {
+      setShowAddForm2(false);
+      setSelectedProduct(null); 
+    }}
+    onProductAdded={fetchProducts}
+   
+  />
 
 
       </div>

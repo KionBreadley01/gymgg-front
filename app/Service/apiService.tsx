@@ -26,6 +26,32 @@ const apiService={
         }))
         
     })
+},
+
+    update: async function (url:string,  data:any): Promise <any> {
+        console.log ('Update Actualiza a', url,data);
+        return new Promise ((resolve, reject)=> {
+            
+            fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`,
+            {
+
+                method: 'UPDATE',
+                body:JSON.stringify(data),
+                headers:{ 
+                    'Accept':'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }
+        ).then(response=> response.json())
+        .then((json)=>{
+             console.log('respuesta de ;', data );
+            resolve(json);
+        })
+        .catch((error =>{
+            reject(error)
+        }))
+        
+    })
 }
 }
 
