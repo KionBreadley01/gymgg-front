@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import AddProductModal from '../modal/AddProductModal';
 import UpdateProductModal from '../modal/UpdateProductModel';
+import DeleteProductModal from '../modal/DeleteProductModal';
 
 
 export default function Products() {
@@ -15,12 +16,14 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   // Estado para registrar el ID del producto que ha sido seleccionado para ver más detalles.
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+  const [onlyProduct, setOnlyProduct] = useState([]);
   // Estado para controlar la página actual
   const [currentPage, setCurrentPage] = useState(1);
   // controla estado de modal de Registro products
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
+  const [removeProduct, SetremoveProduct] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -39,7 +42,6 @@ export default function Products() {
   }
   
   const [product, setProdct] = useState<Products[]>([])
-
   // Se realiza la peticion al back
   const fetchProducts= async () => {
     try{
@@ -54,7 +56,7 @@ export default function Products() {
           return response.json()
           })
             .then((data) => {
-              console.log("Datos: ", data)
+              // console.log("Datos mostrados: ", data)
               setProdct(data)
             })
           .catch((error) => console.log("Error: ", error)) 
@@ -63,12 +65,11 @@ export default function Products() {
       console.log("Error: ", error);
     }
   }
-
   // Si no hay productos
   if (product.length === 0) {
     return <div className="text-white">¡Sin productos!</div>
   }
-  
+
   // Se guardan los datos optenidos de la base de datos
   const products = product.map((m) => ({
     id: m.id,
@@ -79,7 +80,7 @@ export default function Products() {
     category: m.category,
     image: '/assets/images/products/creatine.jpeg'
   }));
-
+  
   // Filtra la lista de productos basándose en el término de búsqueda.
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,12 +102,6 @@ export default function Products() {
     }
   };
 
-  // Resetear página cuando se realiza una búsqueda
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-    setSelectedProduct(null);
-  };
 
   // Función para manejar la selección/deselección de productos
   const handleProductClick = (productId: number) => {
@@ -114,10 +109,18 @@ export default function Products() {
       setSelectedProduct(null);
     } else {
       setSelectedProduct(productId);
-   
+      
     }
     return selectedProduct
   };
+
+
+   const handleProductClickGet = (Getproduct: any) => {
+  setOnlyProduct(Getproduct)
+    return onlyProduct
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -171,7 +174,7 @@ export default function Products() {
               <div 
                 key={product.id}
                 className={`border-b border-gray-200 p-4 sm:p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${selectedProduct === product.id ? 'bg-yellow-50' : ''}`}
-                onClick={() => handleProductClick(product.id)}
+                onClick={() => {handleProductClick(product.id); handleProductClickGet(product)}}
               >
                 <div className="flex flex-col space-y-4">
                   {/* Header del producto con imagen */}
@@ -256,7 +259,7 @@ export default function Products() {
                         onClick={()=> {
                           setShowAddForm2(true);
                           setSelectedProduct(product.id);
-                           console.log(product.id)
+                      
                         }}
                       >
 
@@ -265,22 +268,9 @@ export default function Products() {
                       </button>
                       <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {e.stopPropagation(); SetremoveProduct(true)}}
                       >
-                        <Archive className="h-4 w-4 mr-2" />
-                        Stock
-                      </button>
-                      <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <DollarSign className="h-4 w-4 mr-2" />
-                        Precio
-                      </button>
-                      <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition text-sm justify-center sm:col-span-2 lg:col-span-1 transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                    
                         <Trash2 className="h-4 w-4 mr-2" />
                         Eliminar
                       </button>
@@ -370,19 +360,27 @@ export default function Products() {
         <AddProductModal 
   show={showAddForm}
   onClose={() => setShowAddForm(false)}
-  onProductAdded={fetchProducts} 
+  onProductAdded={fetchProducts}
+  
 />
 
   <UpdateProductModal
     show={showAddForm2}
-    onClose={() => {
-      setShowAddForm2(false);
-      setSelectedProduct(null); 
-    }}
+    onClose={() => {setShowAddForm2(false)}}
     onProductAdded={fetchProducts}
+    productget={onlyProduct}
+    
    
   />
 
+  <DeleteProductModal 
+  show={removeProduct}
+  onClose={()=>SetremoveProduct(false)}
+  onProductAdded={fetchProducts}
+  productget={onlyProduct}
+
+  
+  />
 
       </div>
     </div>

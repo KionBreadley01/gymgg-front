@@ -6,28 +6,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
   // Definir el tipo de datos y sus atributos
-  type Products = {
-   id: number;
-    name: string;
-    price: number;
-    description: string;
-    stock: number;
-    category: string;
-    image: string;
-  }
-  
+
 const UpdateProductModal =({
   show,
   onClose,
   onProductAdded,
+  productget
   
 
 }: {
   show: boolean;
   onClose: () => void;
-  onProductAdded: () => void;
- 
+  onProductAdded: any;
+  productget: any
+  
 }) => {
+  
+  const [dataid, setDataid] = useState('');
   const [dataTitle, setDataTitle] = useState('');
   const [dataPrice, setDataPrice] = useState('');
   const [dataStock, setDataStock] = useState('');
@@ -35,30 +30,41 @@ const UpdateProductModal =({
   const [dataCategory, setDataCategory] = useState('');
   const [Category, setCategory] = useState<{id:string; name_category:string}[]>([]);
 
-  const router = useRouter();
+
 
 useEffect(() => {
   fetch('http://localhost:8000/products/categories/') // ajusta la URL según tu backend
     .then(res => res.json())
     .then(data => setCategory(data))
     .catch(err => console.error('Error cargando categorías', err));
- 
+
+
+  
 }, []);
 
-// useEffect(() => {
-//   if (show && GetProduct) {
-//     setDataTitle(GetProduct.name);
-//     setDataPrice(GetProduct.price.toString());
-//     setDataStock(GetProduct.stock.toString());
-//     setDataDescription(GetProduct.description);
-//     setDataCategory(GetProduct.category);
-//   }
-// }, [show, GetProduct]);
+
+useEffect(() => {
+  if (productget && show) {
+    setDataid(productget.id || '')
+    setDataTitle(productget.name || '');
+    setDataPrice(String(productget.price || ''));
+    setDataStock(String(productget.stock || ''));
+    setDataDescription(productget.description || '');
+    setDataCategory(productget.category || '');
+  }
+}, [productget, show]);
 
 
+const resetForm = () => {
+  setDataTitle('');
+  setDataPrice('');
+  setDataStock('');
+  setDataDescription('');
+  setDataCategory('');
+};
 
 
-
+  
   const submitForm = async () => {
     if (
       dataTitle &&
@@ -74,19 +80,17 @@ useEffect(() => {
       stock: parseInt(dataStock),
       category: dataCategory,
     };
-
-    
-      // const response = await apiService.update(`/products/${GetProduct!.id}/create `, form);
+    const response = await apiService.update(`/products/update/${dataid}`,form)
 
 
-      // if (response && response.id) {
-      //   console.log('Producto agregado correctamente');
-      //  onProductAdded();
-      //   onClose(); // Cerrar modal
-      // } else {
-      
-      //   console.log('llego aqui?',response);
-      // }
+      if (response.id) {
+      console.log('Producto agregado correctamente');
+      onProductAdded();
+      onClose(); // Cerrar modal
+      } else {
+       console.log(response)
+      }
+
     }
   };
 
@@ -128,13 +132,13 @@ useEffect(() => {
               value={dataCategory}
               onChange={(e) => setDataCategory(e.target.value)}
             >
-              <option value="">Selecciona</option>
-              {Category.map(cat => (
-                
-                <option key={cat.id} value={cat.id}>{cat.name_category}</option>
-              ))
-            
-              }
+            <option value=''>selecciona</option>    
+            {Category.map(cat => (
+              
+              <option key={cat.id} value={cat.name_category}>{cat.name_category}</option>
+            ))
+
+            }
           
             </select>
           </div>
@@ -143,12 +147,17 @@ useEffect(() => {
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">Precio</label>
               <input
-                type="number"
+                type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="00.00"
                 value={dataPrice}
-                onChange={(e) => setDataPrice(e.target.value)}
+               onChange={(e) => {
+                const value = e.target.value;
+                    if (/^\d*\.?\d{0,2}$/.test(value)) {
+                      setDataPrice(value);
+                    }
+                }}
               />
             </div>
 
@@ -179,17 +188,18 @@ useEffect(() => {
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={()=>{onClose(); resetForm();}}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
             >
               Cancelar
             </button>
             <button
+            onClick={()=>alert('Producto actualizado exitozamente')}
               type="submit"
             
               className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
             >
-              Agregar Producto
+              Actualizar Producto
             </button>
           </div>
         </form>

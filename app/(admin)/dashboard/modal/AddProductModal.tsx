@@ -21,7 +21,7 @@ const AddProductModal =({
   const [dataCategory, setDataCategory] = useState('');
   const [Category, setCategory] = useState<{id:string; name_category:string}[]>([]);
 
-  const router = useRouter();
+
 
 useEffect(() => {
   fetch('http://localhost:8000/products/categories/') // ajusta la URL según tu backend
@@ -30,6 +30,15 @@ useEffect(() => {
     .catch(err => console.error('Error cargando categorías', err));
  
 }, []);
+
+const resetForm = () => {
+  setDataTitle('');
+  setDataPrice('');
+  setDataStock('');
+  setDataDescription('');
+  setDataCategory('');
+};
+
 
 
   const submitForm = async () => {
@@ -55,6 +64,7 @@ useEffect(() => {
       if (response && response.id) {
         console.log('Producto agregado correctamente');
        onProductAdded();
+       resetForm();
         onClose(); // Cerrar modal
       } else {
       
@@ -105,7 +115,7 @@ useEffect(() => {
               <option value="">Selecciona</option>
               {Category.map(cat => (
                 
-                <option key={cat.id} value={cat.id}>{cat.name_category}</option>
+                <option key={cat.id} value={cat.name_category}>{cat.name_category}</option>
               ))
             
               }
@@ -122,7 +132,12 @@ useEffect(() => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="00.00"
                 value={dataPrice}
-                onChange={(e) => setDataPrice(e.target.value)}
+               onChange={(e) => {
+                const value = e.target.value;
+                    if (/^\d*\.?\d{0,2}$/.test(value)) {
+                      setDataPrice(value);
+                    }
+                }}
               />
             </div>
 

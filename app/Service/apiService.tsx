@@ -35,7 +35,7 @@ const apiService={
             fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`,
             {
 
-                method: 'UPDATE',
+                method: 'PUT',
                 body:JSON.stringify(data),
                 headers:{ 
                     'Accept':'application/json',
@@ -52,8 +52,41 @@ const apiService={
         }))
         
     })
+},
+
+
+delete: async function (url: string): Promise<any> {
+    console.log('Delete de', url);
+
+    return new Promise((resolve, reject) => {
+        fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((response) => {
+            if (response.ok) {
+                resolve({ success: true });
+            } else {
+                return response.json().then(errorData => {
+                    reject(errorData);
+                });
+            }
+        })
+        .catch((error) => {
+            reject(error);
+        });
+    });
 }
+
+
+
 }
+
+
+
 
 
 export default apiService;
