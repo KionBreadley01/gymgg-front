@@ -389,7 +389,10 @@ export default function UserManagement() {
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
-                    <span className="text-sm text-gray-900">{selectedUserData.endDate}</span>
+                    <span className="text-sm text-gray-900">{
+                    // selectedUserData.endDate
+                    
+                    }jasjjas</span>
                     <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
                   </div>
                 </div>
@@ -414,8 +417,8 @@ export default function UserManagement() {
                   </div>
                 </div>
               </div>
-            </div>
           )}
+            </div>
         </div>
 
         {/* Modal para agregar usuario */}
@@ -522,6 +525,6 @@ export default function UserManagement() {
           </div>
         )}
       </div>
-    </div>
+    
   );
 } 
