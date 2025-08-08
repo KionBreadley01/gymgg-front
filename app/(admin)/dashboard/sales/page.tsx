@@ -3,6 +3,7 @@
 
 import { Search, ShoppingCart, DollarSign, Calendar, User, Eye, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import AddSaleModal from '../modal/AddSaleModal';
 
 export default function SalesPage() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -13,6 +14,10 @@ export default function SalesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   // Estado para filtro de fecha
   const [dateFilter, setDateFilter] = useState('all'); // 'all', 'today', 'week', 'month'
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm2, setShowAddForm2] = useState(false);
+  const [removeProduct, SetremoveProduct] = useState(false);
   
   // Número de ventas por página
   const salesPerPage = 8;
@@ -40,7 +45,7 @@ export default function SalesPage() {
     id: number,
     user: UserName,
     user_email: String,
-    items: SaleItem[],
+    product: SaleItem[],
     total_price: number,
     created_at: string,
   }
@@ -81,7 +86,7 @@ export default function SalesPage() {
     id: m.id,
     user: m.user,  
     user_email: m.user_email,
-    items: m.items,
+    product: m.product,
     total_price: m.total_price,
     status: "completed",
     created_at: m.created_at,
@@ -136,8 +141,8 @@ function formatDate(dateString: string): string {
   // Filtra la lista de ventas basándose en el término de búsqueda y filtro de fecha.
   const filteredSales = sales.filter(sale =>
     (
-      sale.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sale.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // sale.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // sale.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sale.total_price.toString().includes(searchTerm) ||
       sale.status.toLowerCase().includes(searchTerm.toLowerCase()) &&
       filterByDate(sale)
@@ -200,9 +205,12 @@ function formatDate(dateString: string): string {
       {/* Header sticky con título y botón agregar */}
       <div className="top-0 z-30 bg-white shadow-md border-b border-gray-200">
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-between product-start sm:product-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Ventas</h1>
-            <button className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+            <button 
+              onClick={()=> setShowAddForm(true)}
+              className="flex product-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Nueva Venta
             </button>
@@ -216,7 +224,7 @@ function formatDate(dateString: string): string {
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Barra de búsqueda */}
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-3 flex product-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -239,7 +247,7 @@ function formatDate(dateString: string): string {
                 <button
                   key={filter.value}
                   onClick={() => handleDateFilterChange(filter.value)}
-                  className={`flex items-center px-3 py-2 rounded-lg transition text-sm ${
+                  className={`flex product-center px-3 py-2 rounded-lg transition text-sm ${
                     dateFilter === filter.value
                       ? 'bg-yellow-600 text-white'
                       : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
@@ -273,10 +281,10 @@ function formatDate(dateString: string): string {
               >
                 <div className="flex flex-col space-y-4">
                   {/* Header de la venta */}
-                  <div className="flex items-start justify-between">
+                  <div className="flex product-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center mb-2 gap-2">
-                        <div className="flex items-center min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:product-center mb-2 gap-2">
+                        <div className="flex product-center min-w-0">
                           <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 mr-2 flex-shrink-0" />
                           <h3 className="text-base sm:text-lg font-medium text-gray-800">
                             Venta #{sale.id.toString().padStart(4, '0')}
@@ -285,7 +293,7 @@ function formatDate(dateString: string): string {
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                        <div className="flex items-center">
+                        <div className="flex product-center">
                           <User className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-800 truncate">{sale.user.name}</p>
@@ -293,14 +301,14 @@ function formatDate(dateString: string): string {
                           </div>
                         </div>
                         
-                        <div className="flex items-center">
+                        <div className="flex product-center">
                           <DollarSign className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm sm:text-base">
                             <span className="font-bold text-green-600">${sale.total_price.toFixed(2)}</span>
                           </span>
                         </div>
                         
-                        <div className="flex items-center">
+                        <div className="flex product-center">
                           <Calendar className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm text-gray-600">
                             {formatDate(sale.created_at)}
@@ -327,8 +335,8 @@ function formatDate(dateString: string): string {
                     <div className="mb-4">
                       <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Productos:</h4>
                       <div className="bg-gray-50 rounded-lg p-4">
-                        {sale.items?.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                        {sale.product?.map((item, index) => (
+                          <div key={index} className="flex justify-between product-center py-2 border-b border-gray-200 last:border-b-0">
                             <div className="flex-1">
                               <p className="font-medium text-gray-800 text-sm">{item.name_product}</p>
                               <p className="text-xs text-gray-500">
@@ -343,7 +351,7 @@ function formatDate(dateString: string): string {
                           </div>
                         ))}
                         <div className="pt-2 mt-2 border-t border-gray-300">
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between product-center">
                             <p className="font-bold text-gray-800">Total:</p>
                             <p className="font-bold text-green-600 text-lg">
                               ${sale.total_price.toFixed(2)}
@@ -357,28 +365,28 @@ function formatDate(dateString: string): string {
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex product-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Ver Detalles
                       </button>
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex product-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <FileText className="h-4 w-4 mr-2" />
                         Factura
                       </button>
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex product-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <DollarSign className="h-4 w-4 mr-2" />
                         Reembolso
                       </button>
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex product-center px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <User className="h-4 w-4 mr-2" />
@@ -393,16 +401,16 @@ function formatDate(dateString: string): string {
 
           {/* Paginación - Siempre visible */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row product-center justify-between gap-4">
               <div className="text-sm text-gray-700 text-center sm:text-left">
                 Mostrando {Math.min(indexOfFirstSale + 1, filteredSales.length)} - {Math.min(indexOfLastSale, filteredSales.length)} de {filteredSales.length} ventas
               </div>
               
-              <div className="flex items-center space-x-1 sm:space-x-2">
+              <div className="flex product-center space-x-1 sm:space-x-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                  className={`flex product-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
                     currentPage === 1
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
@@ -432,7 +440,7 @@ function formatDate(dateString: string): string {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || totalPages === 0}
-                  className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
+                  className={`flex product-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${
                     currentPage === totalPages || totalPages === 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
@@ -459,6 +467,14 @@ function formatDate(dateString: string): string {
             </p>
           </div>
         </div>
+
+        {/* Modal para agregar usuario */}
+        <AddSaleModal 
+          show={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          onSaleAdded={fetchProducts}
+          
+        />
       </div>
     </div>
   );
