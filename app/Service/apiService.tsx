@@ -14,6 +14,9 @@ const apiService={
                 headers:{ 
                     'Accept':'application/json',
                     'Content-Type': 'application/json',
+                    ...(localStorage.getItem('access')&& {
+                        'Authorization': `Bearer ${localStorage.getItem('access')}`
+                    })
                 }
             }
         ).then(response=> response.json())
@@ -40,6 +43,10 @@ const apiService={
                 headers:{ 
                     'Accept':'application/json',
                     'Content-Type': 'application/json',
+                    ...(localStorage.getItem('access')&& {
+                        'Authorization': `Bearer ${localStorage.getItem('access')}`
+                    })
+                    
                 }
             }
         ).then(response=> response.json())
@@ -64,6 +71,9 @@ delete: async function (url: string): Promise<any> {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                ...(localStorage.getItem('access')&& {
+                        'Authorization': `Bearer ${localStorage.getItem('access')}`
+                    })
             },
         })
         .then((response) => {
@@ -80,6 +90,10 @@ delete: async function (url: string): Promise<any> {
         });
     });
 }
+
+
+
+
 
 
 
