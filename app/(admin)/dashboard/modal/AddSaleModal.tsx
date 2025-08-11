@@ -96,16 +96,20 @@ const AddSaleModal = ({
             return;
         }
 
+        // Calcular total dentro de la función
+        const total = parseFloat(calculateTotal());
+
         const data = {
-        user: selectedUserId,
-        items: saleproduct.map(item => {
-            const productData = products.find(p => p.id === item.product);
-            return {
-            product_id: item.product,
-            quantity: item.quantity,
-            unit_price: productData ? Number(productData.price_product) : 0,
-            };
-        }),
+            user: selectedUserId,
+            total_price: total,
+            items: saleproduct.map(item => {
+                const productData = products.find(p => p.id === item.product);
+                return {
+                    product_id: item.product,
+                    quantity: item.quantity,
+                    unit_price: productData ? Number(productData.price_product) : 0,
+                };
+            }),
         };
 
         console.log("Enviando venta al backend:", data);
@@ -125,7 +129,6 @@ const AddSaleModal = ({
                 throw new Error("Error al registrar la venta");
             }
 
-
             const result = await response.json();
             console.log("Venta registrada:", result);
 
@@ -138,113 +141,6 @@ const AddSaleModal = ({
             console.error("Error al guardar venta:", error);
         }
     };
-
-    // const submitSale = async () => {
-    //     if (saleproduct.length === 0 || !selectedUserId) {
-    //         alert("Selecciona un usuario y al menos un producto");
-    //         return;
-    //     }
-
-    //     console.log(selectedProductId)
-    //     const data = {
-    //         user: selectedUserId,
-    //         items: saleproduct.map(item => ({
-    //             product_id: item.product,  // ¡Muy importante que sea product_id aquí!
-    //             quantity: item.quantity,
-    //             unit_price: productData ? Number(productData.price_product) : 0,
-    //         })),
-    //     };
-    //     // const data = {
-    //     //     user: selectedUserId,
-    //     //     items: saleproduct.map(item => {
-    //     //         const productData = products.find(p => p.id === item.product);
-    //     //         return {
-    //     //             product: item.product,
-    //     //             quantity: item.quantity,
-    //     //             unit_price: productData ? Number(productData.price_product) : 0,
-    //     //         };
-    //     //     }),
-    //     // };
-        
-    //     console.log(data)
-
-    //     console.log("Enviando venta al backend:", data);
-
-    //     try {
-    //         const response = await fetch("http://localhost:8000/Sales/create", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //             },
-    //             body: JSON.stringify(data),
-    //         });
-
-    //         if (!response.ok) {
-    //             const errorData = await response.json();
-    //             console.error("Error 400:", errorData);
-    //             throw new Error("Error al registrar la venta");
-    //         }
-
-    //         const result = await response.json();
-    //         console.log("Venta registrada:", result);
-
-    //         // Reset UI
-    //         onSaleAdded();
-    //         onClose();
-    //         setSaleproduct([]);
-    //         setSelectedUserId("");
-    //     } catch (error) {
-    //         console.error("Error al guardar venta:", error);
-    //     }
-    // };
-
-
-    // const submitSale = async () => {
-    //     if (saleproduct.length === 0) return alert("Agrega al menos un producto");
-
-    //     const form = {
-    //         user: selectedUserId,
-    //         // total: parseFloat(calculateTotal()),
-    //         product: saleproduct,
-    //     };
-
-    //     try {
-    //         // await apiService.post("/Sales/create", form);
-    //         const saleData = {
-    //             user: 'uuid-del-usuario',
-    //             items: [
-    //                 {
-    //                 product: 'uuid-del-producto',
-    //                 quantity: 1,
-    //                 unit_price: '100.00'
-    //                 }
-    //             ]
-    //             };
-
-    //         console.log("Datos a enviar:", saleData);
-    //         fetch('http://localhost:8000/Sales/create', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify(form),
-    //         })
-    //         .then(async res => {
-    //         if (!res.ok) {
-    //             const errorData = await res.json();
-    //             console.error('Error 400:', errorData);
-    //             throw new Error('Validation error');
-    //         }
-    //         return res.json();
-    //         })
-    //         .then(data => console.log('Venta creada', data))
-    //         .catch(err => console.error('Error al registrar venta:', err));
-
-    //         onSaleAdded();
-    //         onClose();
-    //         setSaleproduct([]);
-    //     } catch (err) {
-    //         console.error("Error al registrar venta:", err);
-    //     }
-    // };
 
     if (!show) return null;
 
