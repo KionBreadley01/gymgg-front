@@ -15,33 +15,27 @@ export default function InformativeSection() {
     membership_duration: number
   }
 
-  const [membership, setMembership] = useState<Membership[]>([])
+  const [membership, setMembership] = useState<Membership[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Se raliza la peticion al back
+  // Se realiza la petición al back
   useEffect(() => {
-      fetch("http://127.0.0.1:8000/membership/")
+    fetch("http://127.0.0.1:8000/membership/")
       .then(async (response) => {
-          console.log("Response: ", response.status) 
-          if(!response.ok){
-              const text = await response.text()
-              console.log("Contenido de error: ", text) 
-              throw new Error(`Error al obtener los datos ${response.status}`)
-          }
-          return response.json()
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`Error al obtener los datos ${response.status}`);
+        }
+        return response.json();
       })
       .then((data) => {
-          console.log("Datos: ", data)
-          setMembership(data)
+        setMembership(data);
       })
-    .catch((error) => console.log("Error: ", error))
-  }, [])
+      .catch((error) => console.log("Error: ", error))
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Si no hay membresias
-  if (membership.length === 0) {
-    return <div className="text-white">Cargando planes...</div>
-  }
-
-  // Se guardan los datos optenidos de la base de datos
+  // Se guardan los datos obtenidos de la base de datos
   const plans = membership.map((m) => ({
     name: m.name_membership,
     price: `$${m.price_membership}`,
@@ -49,88 +43,59 @@ export default function InformativeSection() {
   }));
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 via-gray-1000 via-gray-400 via-orange-400 to-yellow-400 text-white p-4">
       <div className="w-full max-w-6xl">
-        {/* Encabezado con logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="mb-4">
-            <Image 
-              src="/Logo.png" 
-              alt="Logo GymGG"
-              width={120}
-              height={120}
-              className="rounded-full border-4 border-yellow-500"
+
+        {/* Hero principal rediseñado sin card, solo información y degradado */}
+        <div className="relative mb-20 py-20 flex flex-col lg:flex-row items-center gap-24 overflow-hidden min-h-[700px]">
+          {/* Imagen a la derecha */}
+          <div className="lg:w-1/2 flex justify-center z-10">
+            <Image
+              src="/assets/images/image2.png"
+              alt="Sistema de gestión de gimnasios"
+              width={750}
+              height={600}
+              className="rounded-xl shadow-2xl object-cover"
             />
           </div>
-          <h1 className="text-4xl font-bold text-center text-white">
-            <span className="text-yellow-500">GymsGG</span> 
-          </h1>
-        </div>
-
-        {/* Sección informativa con imagen */}
-        <div className="relative bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 mb-12 border border-yellow-500/30 shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-transparent rounded-2xl"></div>
-          <div className="relative flex flex-col lg:flex-row items-center gap-12">
-            <div className="lg:w-1/2 relative">
-              <div className="relative">
-                <Image
-                  src="/assets/images/image2.png"
-                  alt="Sistema de gestión de gimnasios"
-                  width={500}
-                  height={300}
-                  className="rounded-xl shadow-2xl"
-                />
+          {/* Información a la izquierda */}
+          <div className="lg:w-1/2 z-10 flex flex-col justify-center items-start space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-black text-xl font-bold">⚡</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white">Sistema Integral de Gestión</h2>
               </div>
-              
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Controla todos los aspectos de tu gimnasio con nuestra plataforma todo-en-uno diseñada para maximizar la eficiencia y el crecimiento de tu negocio.
+              </p>
             </div>
-            <div className="lg:w-1/2 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                    <span className="text-black text-xl font-bold">⚡</span>
-                  </div>
-                  <h2 className="text-3xl font-bold text-white">Sistema Integral de Gestión</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+              <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-black text-sm">👥</span>
                 </div>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Controla todos los aspectos de tu gimnasio con nuestra plataforma todo-en-uno diseñada para maximizar la eficiencia y el crecimiento de tu negocio.
-                </p>
+                <span className="text-white font-medium">Gestión de miembros</span>
               </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-black text-sm">👥</span>
-                    </div>
-                    <span className="text-white font-medium">Gestión de miembros</span>
-                  </div>
+              <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-black text-sm">💳</span>
                 </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-black text-sm">💳</span>
-                    </div>
-                    <span className="text-white font-medium">Control de pagos</span>
-                  </div>
-                </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-black text-sm">📊</span>
-                    </div>
-                    <span className="text-white font-medium">Asistencia automatizada</span>
-                  </div>
-                </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-black text-sm">📈</span>
-                    </div>
-                    <span className="text-white font-medium">Reportes en tiempo real</span>
-                  </div>
-                </div>
+                <span className="text-white font-medium">Control de pagos</span>
               </div>
-            
+              <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-black text-sm">📊</span>
+                </div>
+                <span className="text-white font-medium">Asistencia automatizada</span>
+              </div>
+              <div className="bg-gray-800/50 p-4 rounded-lg border border-yellow-500/20 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-black text-sm">📈</span>
+                </div>
+                <span className="text-white font-medium">Reportes en tiempo real</span>
+              </div>
             </div>
           </div>
         </div>
@@ -138,27 +103,37 @@ export default function InformativeSection() {
         {/* Sección de Membresías */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-center text-white mb-8">Nuestras Membresías</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan, index) => (
-              <div key={index} className="bg-gray-900 border-2 border-yellow-500 rounded-xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
-                <div>
-                  <h3 className="text-xl font-semibold mb-3 text-yellow-400">{plan.name}</h3>
-                  <p className="text-2xl font-bold mb-4 text-white">{plan.price}</p>
-                  <ul className="space-y-2 mb-6">
-                    {plan.benefits.map((benefit, i) => (
-                      <li key={i} className="flex items-center text-gray-300">
-                        <span className="w-2 h-2 bg-yellow-500 rounded-full mr-3" />
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
+          {loading ? (
+            <div className="text-center text-gray-300 py-12 text-lg">
+              Cargando planes...
+            </div>
+          ) : plans.length === 0 ? (
+            <div className="text-center text-white mb-8 py-12 text-lg">
+              No hay membresías disponibles en este momento.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {plans.map((plan, index) => (
+                <div key={index} className="bg-gray-900 border-2 border-yellow-500 rounded-xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3 text-yellow-400">{plan.name}</h3>
+                    <p className="text-2xl font-bold mb-4 text-white">{plan.price}</p>
+                    <ul className="space-y-2 mb-6">
+                      {plan.benefits.map((benefit, i) => (
+                        <li key={i} className="flex items-center text-gray-300">
+                          <span className="w-2 h-2 bg-yellow-500 rounded-full mr-3" />
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <button className="mt-auto w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Contratar ahora
+                  </button>
                 </div>
-                <button className="mt-auto w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                  Contratar ahora
-                </button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Sección de beneficios adicionales */}
