@@ -71,10 +71,7 @@ export default function SalesPage() {
     }
   }
 
-  // Si no hay ventas
-  if (sale.length === 0) {
-    return <div className="text-white">¡Sin Ventas!</div>
-  }
+
 
   // Se guardan los datos optenidos de la base de datos
   const sales = sale.map((m) => ({
@@ -227,7 +224,6 @@ function formatDate(dateString: string): string {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
             {/* Filtros de fecha */}
             <div className="flex gap-2">
               {[
@@ -261,7 +257,7 @@ function formatDate(dateString: string): string {
           {currentSales.length === 0 ? (
             <div className="p-6 sm:p-8 text-center text-gray-500">
               {filteredSales.length === 0 
-                ? "No se encontraron ventas que coincidan con tu búsqueda." 
+                ? "No se encontraron ventas." 
                 : "No hay ventas en esta página."}
             </div>
           ) : (
@@ -271,6 +267,7 @@ function formatDate(dateString: string): string {
                 className={`border-b border-gray-200 p-4 sm:p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${selectedSale === sale.id ? 'bg-yellow-50' : ''}`}
                 onClick={() => handleSaleClick(sale.id)}
               >
+                {/* ...existing code for sale card... */}
                 <div className="flex flex-col space-y-4">
                   {/* Header de la venta */}
                   <div className="flex items-start justify-between">
@@ -283,7 +280,6 @@ function formatDate(dateString: string): string {
                           </h3>
                         </div>
                       </div>
-                      
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         <div className="flex items-center">
                           <User className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
@@ -292,14 +288,12 @@ function formatDate(dateString: string): string {
                             <p className="text-xs text-gray-500 truncate">{sale.user_email}</p>
                           </div>
                         </div>
-                        
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm sm:text-base">
                             <span className="font-bold text-green-600">${sale.total_price.toFixed(2)}</span>
                           </span>
                         </div>
-                        
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
                           <span className="text-sm text-gray-600">
@@ -308,7 +302,6 @@ function formatDate(dateString: string): string {
                         </div>
                       </div>
                     </div>
-                    
                     {/* Indicador de expansión */}
                     <div className="ml-4 flex-shrink-0">
                       {selectedSale === sale.id ? (
@@ -319,7 +312,6 @@ function formatDate(dateString: string): string {
                     </div>
                   </div>
                 </div>
-
                 {/* Sección expandible para venta seleccionada */}
                 {selectedSale === sale.id && (
                   <div className="mt-4 pt-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200">
@@ -352,7 +344,6 @@ function formatDate(dateString: string): string {
                         </div>
                       </div>
                     </div>
-
                     {/* Acciones */}
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -390,14 +381,12 @@ function formatDate(dateString: string): string {
               </div>
             ))
           )}
-
           {/* Paginación - Siempre visible */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-700 text-center sm:text-left">
-                Mostrando {Math.min(indexOfFirstSale + 1, filteredSales.length)} - {Math.min(indexOfLastSale, filteredSales.length)} de {filteredSales.length} ventas
+                Mostrando {filteredSales.length === 0 ? 0 : Math.min(indexOfFirstSale + 1, filteredSales.length)} - {filteredSales.length === 0 ? 0 : Math.min(indexOfLastSale, filteredSales.length)} de {filteredSales.length} ventas
               </div>
-              
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -411,7 +400,6 @@ function formatDate(dateString: string): string {
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   <span className="hidden sm:inline">Anterior</span>
                 </button>
-
                 {/* Numeración de página */}
                 <div className="flex space-x-1">
                   {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((page) => (
@@ -428,7 +416,6 @@ function formatDate(dateString: string): string {
                     </button>
                   ))}
                 </div>
-                
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || totalPages === 0}
@@ -445,7 +432,6 @@ function formatDate(dateString: string): string {
             </div>
           </div>
         </div>
-
         {/* Estadísticas rápidas */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md transform hover:scale-105 transition-transform">

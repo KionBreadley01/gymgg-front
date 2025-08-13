@@ -78,12 +78,9 @@ export default function UserManagement() {
     }
   }
 
-  // Si no hay usuarios
-  if (user.length === 0) {
-    return <div className="text-white">¡Sin Usuarios!</div>
-  }
 
-  // Se guardan los datos optenidos de la base de datos
+
+  // Se guardan los datos obtenidos de la base de datos
   const users = user.map((m) => ({
     id: m.id,
     email: m.email,
@@ -192,16 +189,16 @@ export default function UserManagement() {
         {/* Filtros y búsqueda */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
-        {/* Barra de búsqueda */}
+            {/* Barra de búsqueda */}
             <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Buscar usuario por nombre o email..."
-            value={searchTerm}
+                placeholder="Buscar usuario por nombre o email..."
+                value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
@@ -236,63 +233,66 @@ export default function UserManagement() {
           {/* Tabla de usuarios */}
           <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${selectedUser ? 'flex-1' : 'w-full'}`}>
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuario
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Membresía
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {currentUsers.map((user) => (
-                    <tr 
-              key={user.id}
-                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                        selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                      }`}
-              onClick={() => setSelectedUser(user.id)}
-            >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                            <User className="h-5 w-5 text-yellow-600" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
-                          {user.membership}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
-                          {user.is_active ? "Activo" : "Suspendido"}
-                        </span>
-                      </td>
+              {currentUsers.length === 0 ? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios!</div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Usuario
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Membresía
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentUsers.map((user) => (
+                      <tr 
+                        key={user.id}
+                        className={`hover:bg-gray-50 transition-colors cursor-pointer ${
+                          selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                        }`}
+                        onClick={() => setSelectedUser(user.id)}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                              <User className="h-5 w-5 text-yellow-600" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                              <div className="text-sm text-gray-500">{user.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
+                            {user.membership}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
+                            {user.is_active ? "Activo" : "Suspendido"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Paginación - Siempre visible */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-sm text-gray-700 text-center sm:text-left">
-                  Mostrando {Math.min(indexOfFirstUser + 1, filteredUsers.length)} - {Math.min(indexOfLastUser, filteredUsers.length)} de {filteredUsers.length} usuarios
+                  Mostrando {filteredUsers.length === 0 ? 0 : Math.min(indexOfFirstUser + 1, filteredUsers.length)} - {filteredUsers.length === 0 ? 0 : Math.min(indexOfLastUser, filteredUsers.length)} de {filteredUsers.length} usuarios
                 </div>
-                
                 <div className="flex items-center space-x-1 sm:space-x-2">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -323,7 +323,6 @@ export default function UserManagement() {
                       </button>
                     ))}
                   </div>
-                  
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages || totalPages === 0}
@@ -374,51 +373,43 @@ export default function UserManagement() {
                       {selectedUserData.membership}
                     </span>
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Estado:</span>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.is_active ? "Activo" : "Suspendido")}`}>
                       {selectedUserData.is_active ? "Activo" : "Suspendido"}
                     </span>
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Pago:</span>
                     <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_pay)}</span>
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
-                    <span className="text-sm text-gray-900">{
-                    // selectedUserData.endDate
-                    
-                    }jasjjas</span>
                     <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
                   </div>
                 </div>
               </div>
 
-                {/* Acciones */}
-                <div className="pt-4 border-t border-gray-200">
-                  <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
-                  <div className="space-y-2">
-                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      <Eye className="h-4 w-4" />
-                      <span>Ver detalles</span>
-                    </button>
-                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
-                      <Edit className="h-4 w-4" />
-                      <span>Editar usuario</span>
-                    </button>
-                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                      <Trash2 className="h-4 w-4" />
-                      <span>Eliminar usuario</span>
-                    </button>
-                  </div>
+              {/* Acciones */}
+              <div className="pt-4 border-t border-gray-200">
+                <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
+                <div className="space-y-2">
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <Eye className="h-4 w-4" />
+                    <span>Ver detalles</span>
+                  </button>
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                    <Edit className="h-4 w-4" />
+                    <span>Editar usuario</span>
+                  </button>
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                    <span>Eliminar usuario</span>
+                  </button>
                 </div>
               </div>
-          )}
             </div>
+          )}
         </div>
 
         {/* Modal para agregar usuario */}
@@ -525,6 +516,6 @@ export default function UserManagement() {
           </div>
         )}
       </div>
-    
+    </div>
   );
 } 

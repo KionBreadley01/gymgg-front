@@ -65,10 +65,7 @@ export default function Products() {
       console.log("Error: ", error);
     }
   }
-  // Si no hay productos
-  if (product.length === 0) {
-    return <div className="text-white">¡Sin productos!</div>
-  }
+
 
   // Se guardan los datos optenidos de la base de datos
   const products = product.map((m) => ({
@@ -129,14 +126,12 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos</h1>
-          
             <button
-            onClick={()=> setShowAddForm(true)}
-            className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+              onClick={()=> setShowAddForm(true)}
+              className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Agregar Producto
             </button>
-
           </div>
         </div>
       </div>
@@ -166,7 +161,7 @@ export default function Products() {
           {currentProducts.length === 0 ? (
             <div className="p-6 sm:p-8 text-center text-gray-500">
               {filteredProducts.length === 0 
-                ? "No se encontraron productos que coincidan con tu búsqueda." 
+                ? "No se encontraron productos." 
                 : "No hay productos en esta página."}
             </div>
           ) : (
@@ -176,6 +171,7 @@ export default function Products() {
                 className={`border-b border-gray-200 p-4 sm:p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${selectedProduct === product.id ? 'bg-yellow-50' : ''}`}
                 onClick={() => {handleProductClick(product.id); handleProductClickGet(product)}}
               >
+                {/* ...existing code for product card... */}
                 <div className="flex flex-col space-y-4">
                   {/* Header del producto con imagen */}
                   <div className="flex items-start justify-between">
@@ -191,7 +187,6 @@ export default function Products() {
                           }}
                         />
                       </div>
-                      
                       {/* Información del producto */}
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center mb-2 gap-2">
@@ -206,7 +201,6 @@ export default function Products() {
                         <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-2">{product.description}</p>
                       </div>
                     </div>
-                    
                     {/* Indicador de expansión */}
                     <div className="ml-4 flex-shrink-0">
                       {selectedProduct === product.id ? (
@@ -216,7 +210,6 @@ export default function Products() {
                       )}
                     </div>
                   </div>
-
                   {/* Detalles del producto */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 ml-0 sm:ml-24">
                     <div className="flex items-center">
@@ -247,22 +240,18 @@ export default function Products() {
                     </div>
                   </div>
                 </div>
-
                 {/* Sección expandible para producto seleccionado */}
                 {selectedProduct === product.id && (
                   <div className="mt-4 pt-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200 ml-0 sm:ml-24">
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                   
                       <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={()=> {
                           setShowAddForm2(true);
                           setSelectedProduct(product.id);
-                      
                         }}
                       >
-
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </button>
@@ -270,7 +259,6 @@ export default function Products() {
                         className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => {e.stopPropagation(); SetremoveProduct(true)}}
                       >
-                    
                         <Trash2 className="h-4 w-4 mr-2" />
                         Eliminar
                       </button>
@@ -280,14 +268,12 @@ export default function Products() {
               </div>
             ))
           )}
-
           {/* Paginación - Siempre visible */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-700 text-center sm:text-left">
-                Mostrando {Math.min(indexOfFirstProduct + 1, filteredProducts.length)} - {Math.min(indexOfLastProduct, filteredProducts.length)} de {filteredProducts.length} productos
+                Mostrando {filteredProducts.length === 0 ? 0 : Math.min(indexOfFirstProduct + 1, filteredProducts.length)} - {filteredProducts.length === 0 ? 0 : Math.min(indexOfLastProduct, filteredProducts.length)} de {filteredProducts.length} productos
               </div>
-              
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -301,7 +287,6 @@ export default function Products() {
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   <span className="hidden sm:inline">Anterior</span>
                 </button>
-
                 {/* Numeración de página */}
                 <div className="flex space-x-1">
                   {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((page) => (
@@ -318,7 +303,6 @@ export default function Products() {
                     </button>
                   ))}
                 </div>
-                
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || totalPages === 0}
@@ -335,7 +319,6 @@ export default function Products() {
             </div>
           </div>
         </div>
-
         {/* Estadísticas rápidas */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md transform hover:scale-105 transition-transform">
@@ -355,33 +338,24 @@ export default function Products() {
             </p>
           </div>
         </div>
-      
-          {/* Modal para agregar usuario */}
+        {/* Modal para agregar usuario */}
         <AddProductModal 
-  show={showAddForm}
-  onClose={() => setShowAddForm(false)}
-  onProductAdded={fetchProducts}
-  
-/>
-
-  <UpdateProductModal
-    show={showAddForm2}
-    onClose={() => {setShowAddForm2(false)}}
-    onProductAdded={fetchProducts}
-    productget={onlyProduct}
-    
-   
-  />
-
-  <DeleteProductModal 
-  show={removeProduct}
-  onClose={()=>SetremoveProduct(false)}
-  onProductAdded={fetchProducts}
-  productget={onlyProduct}
-
-  
-  />
-
+          show={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          onProductAdded={fetchProducts}
+        />
+        <UpdateProductModal
+          show={showAddForm2}
+          onClose={() => {setShowAddForm2(false)}}
+          onProductAdded={fetchProducts}
+          productget={onlyProduct}
+        />
+        <DeleteProductModal 
+          show={removeProduct}
+          onClose={()=>SetremoveProduct(false)}
+          onProductAdded={fetchProducts}
+          productget={onlyProduct}
+        />
       </div>
     </div>
   );
