@@ -34,7 +34,7 @@ export default  function DeleteProductModal ({show, onClose, onProductAdded, pro
       console.log(response)
       
       if(response.success){
-        alert('producto eliminado');
+        alert('Producto eliminado');
         onProductAdded();
         onClose(); 
       }else {

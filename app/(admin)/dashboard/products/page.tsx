@@ -11,6 +11,7 @@ import UpdateProductModal from '../modal/UpdateProductModel';
 import DeleteProductModal from '../modal/DeleteProductModal';
 
 
+
 export default function Products() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +26,12 @@ export default function Products() {
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
 
+
+
+
+
   useEffect(() => {
+
     fetchProducts();
   }, []);
   // Número de productos por página
@@ -42,29 +48,36 @@ export default function Products() {
   }
   
   const [product, setProdct] = useState<Products[]>([])
-  // Se realiza la peticion al back
-  const fetchProducts= async () => {
-    try{
-        fetch("http://127.0.0.1:8000/products/")
-        .then(async (response) => {
-          console.log("Response: ", response.status) 
-          if(!response.ok){
-              const text = await response.text()
-              console.log("Contenido de error: ", text) 
-              throw new Error(`Error al obtener los datos ${response.status}`)
-          }
-          return response.json()
-          })
-            .then((data) => {
-              // console.log("Datos mostrados: ", data)
-              setProdct(data)
-            })
-          .catch((error) => console.log("Error: ", error)) 
 
-    } catch (error){
-      console.log("Error: ", error);
-    }
+  const fetchProducts = async () => {
+  try {
+    const token = localStorage.getItem('access');
+
+    fetch("http://127.0.0.1:8000/products/", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    })
+      .then(async (response) => {
+        console.log("Response: ", response.status);
+        if (!response.ok) {
+          const text = await response.text();
+          console.log("Contenido de error: ", text);
+          throw new Error(`Error al obtener los datos ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProdct(data);
+      })
+      .catch((error) => console.log("Error: ", error));
+  } catch (error) {
+    console.log("Error: ", error);
   }
+};
   // Si no hay productos
   if (product.length === 0) {
     return <div className="text-white">¡Sin productos!</div>
@@ -101,6 +114,10 @@ export default function Products() {
       setSelectedProduct(null);
     }
   };
+
+
+
+
 
 
   // Función para manejar la selección/deselección de productos

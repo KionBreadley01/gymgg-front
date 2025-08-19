@@ -30,12 +30,12 @@ export default function Login() {
         localStorage.setItem("refresh", respuesta.refresh);
         localStorage.setItem("user", JSON.stringify("usuario"));
 
-        alert("login existos");
+        alert("login existoso");
 
         router.push('/dashboard');
       } else{
    
-      alert("¡Ooh!... No :(  malas credenciales");
+      alert("Error de credenciales");
 
     }
   } catch (err){

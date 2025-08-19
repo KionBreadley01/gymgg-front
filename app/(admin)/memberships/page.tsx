@@ -6,34 +6,45 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import AddMembershipModal from '../dashboard/modal/AddMembershipModal';
 import EditMembershipModal from '../dashboard/modal/EditMembershipModal';
 import DeleteMembershipModal from '../dashboard/modal/DeleteMembershipModal';
+import { type } from 'os';
 
 export default function Memberships() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
-
+  
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
     const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
 
+
+      const [onlyMem, setOnlyMem] = useState([]);
+
+
   useEffect(() => {
-    fetchProducts();
+    fetchMembersip();
+
   }, []);
 
 
  type Memberships = {
   id: number,
-  name_membership: string,
+  name_membership: String,
   price_membership:number
-  membership_duration: number
+  duration_membership: String
+  offers_membership:string[];
+  status_membership: boolean
  }
+
+
+
 
   const [member, setMember] = useState<Memberships[]>([])
 
 
-  const fetchProducts= async () => {
+  const fetchMembersip= async () => {
     try{
         fetch("http://127.0.0.1:8000/membership/")
         .then(async (response) => {
@@ -63,7 +74,9 @@ export default function Memberships() {
     id: m.id,
     name: m.name_membership,  
     price: m.price_membership,
-    duration:  m.membership_duration
+    duration:  m.duration_membership,
+    status:m.status_membership,
+    ofertas_membresia:m.offers_membership
 
 
   }));
@@ -90,51 +103,49 @@ export default function Memberships() {
 
 
 
-
-
-
-  // const handleAddMembership = (membership: any) => {
-  //   const newId = Math.max(...plans.map(p => p.id)) + 1;
-  //   const membershipToAdd = {
-  //     ...membership,
-  //     id: newId,
-  //     status: 'Activa'
-  //   };
-  //   setPlans([...plans, membershipToAdd]);
-  //   alert('Membresía agregada exitosamente');
-  //   setShowAddModal(false);
-  // };
-
-  // const handleEditMembership = (membership: any) => {
-  //   const updatedPlans = plans.map(plan => 
-  //     plan.id === selectedMembership.id 
-  //       ? { ...membership, id: selectedMembership.id, status: selectedMembership.status }
-  //       : plan
-  //   );
-  //   setPlans(updatedPlans);
-  //   alert('Membresía actualizada exitosamente');
-  //   setShowEditModal(false);
-  //   setSelectedMembership(null);
-  // };
-
-  // const handleDeleteMembership = () => {
-  //   const updatedPlans = plans.filter(plan => plan.id !== selectedMembership.id);
-  //   setPlans(updatedPlans);
-  //   alert('Membresía eliminada exitosamente');
-  //   setShowDeleteModal(false);
-  //   setSelectedMembership(null);
-  // };
-
-  const openEditModal = (membership: any) => {
-    setSelectedMembership(membership);
-    setShowEditModal(true);
+   const handleProductClickGet = (GetMem: any) => {
+  setOnlyMem(GetMem)
+    console.log(GetMem)
+  return onlyMem
   };
 
-  const openDeleteModal = (membership: any) => {
-    setSelectedMembership(membership);
-    setShowDeleteModal(true);
+
+
+
+  const handleAddMembership = (membership: any) => {
+    const newId = Math.max(...member.map(p => p.id)) + 1;
+    const membershipToAdd = {
+      ...membership,
+      id: newId,
+      status: 'Activa'
+    };
+    setMember([...membership, membershipToAdd]);
+    alert('Membresía agregada exitosamente');
+    setShowAddModal(false);
   };
 
+  const handleEditMembership = (membership: any) => {
+    const updatedPlans = member.map(memFilt => 
+      memFilt.id === selectedMembership.id 
+        ? { ...membership, id: selectedMembership.id, status: selectedMembership.status }
+        : memFilt
+    );
+    setMember(updatedPlans);
+    alert('Membresía actualizada exitosamente');
+    setShowEditModal(false);
+    setSelectedMembership(null);
+  };
+
+  const handleDeleteMembership = () => {
+    const updatedPlans = member.filter(plan => plan.id !== selectedMembership.id);
+    setMember(updatedPlans);
+    alert('Membresía eliminada exitosamente');
+    setShowDeleteModal(false);
+    setSelectedMembership(null);
+  };
+
+
+  
   return (
     <div className="p-6">
       <div className="max-w-7xl mx-auto">
@@ -213,40 +224,46 @@ export default function Memberships() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        plan.duration === 0 
+                        plan.duration=="mensual"
                           ? 'bg-blue-100 text-blue-800' 
                           : 'bg-purple-100 text-purple-800'
                       }`}>
-                        {/* {plan.duracion_membresia === 'mensual' ? 'Mensual' : 'Anual'} */}
+                        {plan.duration === 'mensual' ? 'Mensual' : 'Anual'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900">
                         <ul className="list-disc list-inside space-y-1">
-                          {/* {plan.ofertas_membresia.slice(0, 3).map((oferta, i) => ( */}
-                            {/* <li key={i} className="text-gray-600">{oferta}</li> */}
-                          {/* ))} */}
-                          {/* {plan.ofertas_membresia.length > 3 && (
+                          {plan.ofertas_membresia.slice(0, 3).map((oferta, i) => ( 
+                             <li key={i} className="text-gray-600">{oferta}</li> 
+                           ))}
+                           {plan.ofertas_membresia.length > 3 && (
                             <li className="text-blue-600">+{plan.ofertas_membresia.length - 3} más</li>
-                          )} */}
+                          )}
                         </ul>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        {/* {plan.status} */}
+                        {plan.status ===false ? 'No activo':"Activo"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button 
-                          onClick={() => openEditModal(plan)}
+                          onClick={() =>{ 
+                            console.log("antes de mantar"+plan.ofertas_membresia)
+                            console.log("antes de mantar"+typeof(plan.ofertas_membresia))
+                            handleProductClickGet(plan)
+                            setShowEditModal(true)
+                            }}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded"
                         >
                           <Edit className="h-4 w-4" />
+
                         </button>
                         <button 
-                          onClick={() => openDeleteModal(plan)}
+                          onClick={(e) => {e.stopPropagation(); setShowDeleteModal(true)}}
                           className="text-red-600 hover:text-red-900 p-1 rounded"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -261,25 +278,26 @@ export default function Memberships() {
         </div>
 
         {/* Modales */}
-        {/* <AddMembershipModal
+         <AddMembershipModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
-          onSubmit={handleAddMembership}
+          onMembership={fetchMembersip}
         />
 
         <EditMembershipModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onSubmit={handleEditMembership}
-          membership={selectedMembership}
+          onMembership={fetchMembersip}
+          membership={onlyMem}
         />
+
 
         <DeleteMembershipModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDeleteMembership}
-          membership={selectedMembership}
-        /> */}
+          onConfirm={fetchMembersip}
+          membership={onlyMem}
+        />
       </div>
     </div>
   );

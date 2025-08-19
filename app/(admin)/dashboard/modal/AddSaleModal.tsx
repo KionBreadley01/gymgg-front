@@ -49,8 +49,17 @@ const AddSaleModal = ({
 
     // Cargar productos al abrir el modal
     // Datos de productos
+    const token = localStorage.getItem('access');
+
     useEffect(() => {
-        fetch('http://localhost:8000/products/') 
+        fetch('http://localhost:8000/products/',{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    }) 
         .then(res => res.json())
         .then(data => setProducts(data))
         .catch(err => console.error('Error cargando categorías', err));
@@ -58,7 +67,14 @@ const AddSaleModal = ({
 
     // Datos
     useEffect(() => {
-        fetch('http://localhost:8000/useraccount/') 
+        fetch('http://localhost:8000/useraccount/',{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    }) 
         .then(res => res.json())
         .then(data => setUsers(data))
         .catch(err => console.error('Error cargando categorías', err));
@@ -113,33 +129,17 @@ const AddSaleModal = ({
         };
 
         console.log("Enviando venta al backend:", data);
+      const response = await apiService.post('/Sales/create', data);
+              if (response && response.id) {
+        console.log('venta realizada correctamente');
+      setSaleproduct([]);
+        setSelectedUserId("");
+        onClose(); // Cerrar modal
+      } else {
+      
+        console.log('llego aqui?',response);
+      }
 
-        try {
-            const response = await fetch("http://localhost:8000/Sales/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Error 400 completo:", JSON.stringify(errorData, null, 2));
-                throw new Error("Error al registrar la venta");
-            }
-
-            const result = await response.json();
-            console.log("Venta registrada:", result);
-
-            // Reset UI
-            onSaleAdded();
-            onClose();
-            setSaleproduct([]);
-            setSelectedUserId("");
-        } catch (error) {
-            console.error("Error al guardar venta:", error);
-        }
     };
 
     if (!show) return null;

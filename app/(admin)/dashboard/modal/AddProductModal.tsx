@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 const AddProductModal =({
   show,
   onClose,
-  onProductAdded, // ← aquí la estás recibiendo como prop
+  onProductAdded, 
 }: {
   show: boolean;
   onClose: () => void;
-  onProductAdded: () => void; // ← asegúrate de declararla aquí también
+  onProductAdded: () => void;
 }) => {
   const [dataTitle, setDataTitle] = useState('');
   const [dataPrice, setDataPrice] = useState('');
@@ -164,6 +164,8 @@ const resetForm = () => {
               onChange={(e) => setDataDescription(e.target.value)}
             />
           </div>
+
+          
 
           <div className="flex space-x-3 pt-4">
             <button

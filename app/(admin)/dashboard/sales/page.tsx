@@ -56,8 +56,17 @@ export default function SalesPage() {
   const [sale, setSales] = useState<Sale[]>([]);
 
   const fetchProducts = async () => {
+        const token = localStorage.getItem('access');
+
     try {
-      const response = await fetch("http://127.0.0.1:8000/Sales/");
+      const response = await fetch("http://127.0.0.1:8000/Sales/",{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    });
       if (!response.ok) {
         const text = await response.text();
         throw new Error(`Error al obtener los datos ${response.status}: ${text}`);

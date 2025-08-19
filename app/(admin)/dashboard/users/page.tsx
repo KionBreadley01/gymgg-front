@@ -12,6 +12,7 @@ import {
   ChevronRight 
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import AddUserModal from '@/app/(admin)/dashboard/modal/AddUserModal';
 
 // Tipos de datos
 interface NewUser {
@@ -27,6 +28,8 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [filterMembership, setFilterMembership] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm2, setShowAddForm2] = useState(false);
+  const [removeUser, SetremoveUser] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [newUser, setNewUser] = useState<NewUser>({
     name: '',
@@ -34,19 +37,28 @@ export default function UserManagement() {
     membership: 'Básica',
     status: 'Activo'
   });
+  
 
   // Configuración de paginación
   const usersPerPage = 5;
 
   useEffect(() => {
-    fetchProducts();
+    fetchSale();
   }, []);
+
+  type Membership = {
+    id: string;
+    name_membership: string;
+    price_membership: number;
+    offers_membership: number;
+    membership_duration: number;
+  };
 
   type User = {
     id: number,
     email: string,
     name: string,
-    membership: string,
+    membership: Membership,
     is_active: Boolean,
     date_pay: Date,
     date_expiration: Date,
@@ -55,9 +67,18 @@ export default function UserManagement() {
   const [user, setUser] = useState<User[]>([])
 
   // Se realiza la peticion al back
-  const fetchProducts= async () => {
+  const fetchSale= async () => {
+        const token = localStorage.getItem('access');
+
     try{
-        fetch("http://127.0.0.1:8000/useraccount/")
+        fetch("http://127.0.0.1:8000/useraccount/",{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    })
         .then(async (response) => {
           console.log("Response: ", response.status) 
           if(!response.ok){
@@ -126,7 +147,7 @@ export default function UserManagement() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
+    const matchesMembership = filterMembership === 'all' || user.membership.name_membership === filterMembership;
     return matchesSearch && matchesMembership;
   });
 
@@ -252,11 +273,10 @@ export default function UserManagement() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentUsers.map((user) => (
-                    <tr 
+                    <>
+                    <tr
               key={user.id}
-                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                        selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                      }`}
+                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
               onClick={() => setSelectedUser(user.id)}
             >
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -271,16 +291,17 @@ export default function UserManagement() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
-                          {user.membership}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership?.name_membership)}`}>
+                          {user.membership?.name_membership}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
-                          {user.is_active ? "Activo" : "Suspendido"}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.membership?.id ? "Activo" : "Suspendido")}`}>
+                          {user.membership?.id ? "Activo" : "Suspendido"}
                         </span>
                       </td>
                     </tr>
+                  </>
                   ))}
                 </tbody>
               </table>
@@ -370,15 +391,15 @@ export default function UserManagement() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Membresía:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData.membership)}`}>
-                      {selectedUserData.membership}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData?.membership?.name_membership)}`}>
+                      {selectedUserData?.membership?.name_membership}
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Estado:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.is_active ? "Activo" : "Suspendido")}`}>
-                      {selectedUserData.is_active ? "Activo" : "Suspendido"}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.membership.id ? "Activo" : "Suspendido")}`}>
+                      {selectedUserData.membership.id ? "Activo" : "Suspendido"}
                     </span>
                   </div>
                   
@@ -392,7 +413,7 @@ export default function UserManagement() {
                     <span className="text-sm text-gray-900">{
                     // selectedUserData.endDate
                     
-                    }jasjjas</span>
+                    }</span>
                     <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
                   </div>
                 </div>
@@ -402,10 +423,10 @@ export default function UserManagement() {
                 <div className="pt-4 border-t border-gray-200">
                   <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                   <div className="space-y-2">
-                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    {/* <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                       <Eye className="h-4 w-4" />
                       <span>Ver detalles</span>
-                    </button>
+                    </button> */}
                     <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
                       <Edit className="h-4 w-4" />
                       <span>Editar usuario</span>
@@ -503,28 +524,48 @@ export default function UserManagement() {
                   </select>
                 </div>
 
-                {/* Botones */}
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddForm(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleAddUser}
-                    className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-                  >
-                    Agregar Usuario
-                  </button>
-                </div>
+                  {/* Botones */}
+                  <div className="flex space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddForm(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddUser}
+                      className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                    >
+                      Agregar Usuario
+                    </button>
+                  </div>
               </div>
             </div>
+
+            {/* Modal para agregar usuario */}
+            <AddUserModal 
+              show={showAddForm}
+              onClose={() => setShowAddForm(false)}
+              onUserAdded={fetchSale}
+            />
+
+            {/* <UpdateProductModal
+              show={showAddForm2}
+              onClose={() => {setShowAddForm2(false)}}
+              onProductAdded={fetchProducts}
+              productget={onlyProduct}
+            /> */}
+
+            {/* <DeleteProductModal 
+              show={removeProduct}
+              onClose={()=>SetremoveProduct(false)}
+              onProductAdded={fetchProducts}
+              productget={onlyProduct}
+            /> */}
           </div>
         )}
-      </div>
-    
+    </div>    
   );
-} 
+}
