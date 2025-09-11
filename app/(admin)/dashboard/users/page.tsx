@@ -12,6 +12,7 @@ import {
   ChevronRight 
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 // Tipos de datos
 interface NewUser {
@@ -137,13 +138,10 @@ export default function UserManagement() {
   // Manejadores de eventos
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
-      alert('Por favor completa todos los campos requeridos');
+      toast.error('Por favor completa todos los campos requeridos');
       return;
     }
-    
-    console.log('Nuevo usuario:', newUser);
-    alert('Usuario agregado exitosamente');
-    
+    toast.success('Usuario agregado exitosamente');
     setNewUser({
       name: '',
       email: '',
@@ -262,7 +260,7 @@ export default function UserManagement() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                              <User className="h-5 w-5 text-yellow-600" />
+                              <User className="h-5 w-5 text-black-600" />
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -394,11 +392,8 @@ export default function UserManagement() {
               <div className="pt-4 border-t border-gray-200">
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
+                 
                   <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    <Eye className="h-4 w-4" />
-                    <span>Ver detalles</span>
-                  </button>
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
                     <Edit className="h-4 w-4" />
                     <span>Editar usuario</span>
                   </button>
@@ -467,7 +462,7 @@ export default function UserManagement() {
                   <select
                     id="membership"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={newUser.membership}
                     onChange={(e) => handleInputChange('membership', e.target.value as 'Premium' | 'Plus' | 'Básica')}
                   >
@@ -485,7 +480,7 @@ export default function UserManagement() {
                   <select
                     id="status"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={newUser.status}
                     onChange={(e) => handleInputChange('status', e.target.value as 'Activo' | 'Suspendido')}
                   >

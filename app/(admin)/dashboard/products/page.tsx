@@ -246,7 +246,7 @@ export default function Products() {
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={()=> {
                           setShowAddForm2(true);
                           setSelectedProduct(product.id);
@@ -256,7 +256,7 @@ export default function Products() {
                         Editar
                       </button>
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex items-center px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => {e.stopPropagation(); SetremoveProduct(true)}}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />

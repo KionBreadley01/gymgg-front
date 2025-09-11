@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import apiService from "@/app/Service/apiService";
+import { toast } from 'react-toastify';
 
 interface Product {
     id: string;
@@ -92,7 +93,7 @@ const AddSaleModal = ({
 
     const submitSale = async () => {
         if (saleproduct.length === 0 || !selectedUserId) {
-            alert("Selecciona un usuario y al menos un producto");
+            toast.error("Selecciona un usuario y al menos un producto");
             return;
         }
 
