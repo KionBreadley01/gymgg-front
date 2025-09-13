@@ -3,6 +3,8 @@
 
 import { Search, ShoppingCart, DollarSign, Calendar, User, Eye, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import AddSaleModal from '../modal/AddSaleModal';
+import DeleteSaleModal from '../modal/DeleteSaleModal';
 
 export default function SalesPage() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -13,23 +15,34 @@ export default function SalesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   // Estado para filtro de fecha
   const [dateFilter, setDateFilter] = useState('all'); // 'all', 'today', 'week', 'month'
-  
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [removeSale, SetremoveSale] = useState(false);
+  const [onlySale, setOnlySale] = useState([]);
+
   // Número de ventas por página
   const salesPerPage = 8;
 
   useEffect(() => {
-    fetchProducts();
+    fetchSale();
   }, []);
 
   // Definir el tipo de datos y sus atributos
   type SaleItem = {
-    id: number,
-    product: number,
-    name_product: string,
-    quantity: number,
-    unit_price: String,
-    total_price: number,
-  }
+    id: number;
+    name_product: string;
+    product: {
+      id: string;
+      name_product: string;
+      price_product: string;
+      description: string;
+      stock: number;
+      total_price_p: number
+    };
+    quantity: number;
+    unit_price: string;
+    total_price: string;
+  };
 
   type UserName = {
     id: string;
@@ -38,7 +51,7 @@ export default function SalesPage() {
 
   type Sale = {
     id: number,
-    user: UserName,
+    user: string | UserName,
     user_email: String,
     items: SaleItem[],
     total_price: number,
@@ -48,7 +61,7 @@ export default function SalesPage() {
   const [sale, setSales] = useState<Sale[]>([])
 
   // Se realiza la peticion al back (simulada con datos de ejemplo)
-  const fetchProducts= async () => {
+  const fetchSale= async () => {
     try{
       fetch("http://127.0.0.1:8000/Sales/")
       .then(async (response) => {
@@ -71,15 +84,13 @@ export default function SalesPage() {
     }
   }
 
-
-
   // Se guardan los datos optenidos de la base de datos
   const sales = sale.map((m) => ({
     id: m.id,
-    user: m.user,  
-    user_email: m.user_email,
+    user: typeof m.user === "object" ? m.user : { name: m.user, id: m.user },
+    user_email: m.user_email || "",
     items: m.items,
-    total_price: m.total_price,
+    total_price: Number(m.total_price),
     status: "completed",
     created_at: m.created_at,
   }));
@@ -106,9 +117,6 @@ function formatDate(dateString: string): string {
   return `${datePart} - ${timePart}`;
 }
 
-
-  console.log(sales)
-
   // Función para filtrar por fecha
   const filterByDate = (sale: Sale) => {
     if (dateFilter === 'all') return true;
@@ -133,8 +141,6 @@ function formatDate(dateString: string): string {
   // Filtra la lista de ventas basándose en el término de búsqueda y filtro de fecha.
   const filteredSales = sales.filter(sale =>
     (
-      sale.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sale.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sale.total_price.toString().includes(searchTerm) ||
       sale.status.toLowerCase().includes(searchTerm.toLowerCase()) &&
       filterByDate(sale)
@@ -178,6 +184,11 @@ function formatDate(dateString: string): string {
     }
   };
 
+  const handleSaleClickGet = (Getsale: any) => {
+    setOnlySale(Getsale)
+      return onlySale
+  }
+
   // Función para obtener el color del estado
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -199,7 +210,10 @@ function formatDate(dateString: string): string {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Ventas</h1>
-            <button className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+            <button 
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Nueva Venta
             </button>
@@ -265,7 +279,7 @@ function formatDate(dateString: string): string {
               <div 
                 key={sale.id}
                 className={`border-b border-gray-200 p-4 sm:p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${selectedSale === sale.id ? 'bg-yellow-50' : ''}`}
-                onClick={() => handleSaleClick(sale.id)}
+                onClick={() => {handleSaleClick(sale.id); handleSaleClickGet(sale)}}
               >
                 {/* ...existing code for sale card... */}
                 <div className="flex flex-col space-y-4">
@@ -276,7 +290,8 @@ function formatDate(dateString: string): string {
                         <div className="flex items-center min-w-0">
                           <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 mr-2 flex-shrink-0" />
                           <h3 className="text-base sm:text-lg font-medium text-gray-800">
-                            Venta #{sale.id.toString().padStart(4, '0')}
+                            {/* Venta #{sale.id.toString().padStart(4, '0')} */}
+                            Venta
                           </h3>
                         </div>
                       </div>
@@ -329,7 +344,7 @@ function formatDate(dateString: string): string {
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-800 text-sm">
-                                ${item.total_price.toFixed(2)}
+                                ${item.product.price_product}
                               </p>
                             </div>
                           </div>
@@ -348,22 +363,8 @@ function formatDate(dateString: string): string {
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Ver Detalles
-                      </button>
-                      <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Factura
-                      </button>
-                      <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {e.stopPropagation(); SetremoveSale(true)}}
                       >
                         <DollarSign className="h-4 w-4 mr-2" />
                         Reembolso
@@ -373,7 +374,7 @@ function formatDate(dateString: string): string {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <User className="h-4 w-4 mr-2" />
-                        Cliente
+                        Vendedor
                       </button>
                     </div>
                   </div>
@@ -446,6 +447,21 @@ function formatDate(dateString: string): string {
           </div>
         </div>
       </div>
+
+      {/* Modal para agregar usuario */}
+      <AddSaleModal 
+        show={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSaleAdded={fetchSale}
+      />
+
+      <DeleteSaleModal
+        show={removeSale}
+        onClose={()=>SetremoveSale(false)}
+        onSaleAdded={fetchSale}
+        saleget={onlySale}
+      />
+
     </div>
   );
 }
