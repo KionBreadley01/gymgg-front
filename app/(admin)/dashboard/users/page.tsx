@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import AddUserModal from '../modal/AddUserModal';
 
 // Tipos de datos
 interface NewUser {
@@ -40,14 +41,22 @@ export default function UserManagement() {
   const usersPerPage = 5;
 
   useEffect(() => {
-    fetchProducts();
+    fetchUsers();
   }, []);
+
+    type Membership = {
+    id: string;
+    name_membership: string;
+    price_membership: number;
+    offers_membership: number;
+    membership_duration: number;
+  };
 
   type User = {
     id: number,
     email: string,
     name: string,
-    membership: string,
+    membership: Membership,
     is_active: Boolean,
     date_pay: Date,
     date_expiration: Date,
@@ -56,7 +65,7 @@ export default function UserManagement() {
   const [user, setUser] = useState<User[]>([])
 
   // Se realiza la peticion al back
-  const fetchProducts= async () => {
+  const fetchUsers= async () => {
     try{
         fetch("http://127.0.0.1:8000/useraccount/")
         .then(async (response) => {
@@ -124,7 +133,7 @@ export default function UserManagement() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
+    const matchesMembership = filterMembership === 'all' || user.membership.id === filterMembership;
     return matchesSearch && matchesMembership;
   });
 
@@ -269,13 +278,13 @@ export default function UserManagement() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
-                            {user.membership}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership?.name_membership || "Sin membresías")}`}>
+                            {user?.membership?.name_membership || "Sin membresías"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
-                            {user.is_active ? "Activo" : "Suspendido"}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.membership ? "Activo" : "Suspendido")}`}>
+                            {user.membership ? "Activo" : "Suspendido"}
                           </span>
                         </td>
                       </tr>
@@ -367,14 +376,14 @@ export default function UserManagement() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Membresía:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData.membership)}`}>
-                      {selectedUserData.membership}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData?.membership?.id)}`}>
+                      {selectedUserData?.membership?.name_membership}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Estado:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.is_active ? "Activo" : "Suspendido")}`}>
-                      {selectedUserData.is_active ? "Activo" : "Suspendido"}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.membership ? "Activo" : "Suspendido")}`}>
+                      {selectedUserData.membership ? "Activo" : "Suspendido"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -392,7 +401,7 @@ export default function UserManagement() {
               <div className="pt-4 border-t border-gray-200">
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
-                 
+
                   <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <Edit className="h-4 w-4" />
                     <span>Editar usuario</span>
@@ -508,6 +517,14 @@ export default function UserManagement() {
                 </div>
               </div>
             </div>
+
+            {/* Modal para agregar usuario */}
+            <AddUserModal 
+              show={showAddForm}
+              onClose={() => setShowAddForm(false)}
+              onUserAdded={fetchUsers}
+            />
+
           </div>
         )}
       </div>
