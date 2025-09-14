@@ -3,6 +3,7 @@
 import apiService from "@/app/Service/apiService";
 import { Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 interface DeleteSaleProp {
     show: boolean;
@@ -25,10 +26,11 @@ export default  function DeleteSaleModal ({show, onClose, onSaleAdded, saleget}:
         console.log(response)
 
         if(response.success){
-            alert('Rembolso realizado');
+            toast.success('Rembolso realizado');
             onSaleAdded();
             onClose(); 
         }else {
+            toast.error('Error al realizar el rembolso');
             console.log(response)
         }  
     }

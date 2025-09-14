@@ -3,6 +3,7 @@
 import apiService from "@/app/Service/apiService";
 import { Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 
  
@@ -32,15 +33,13 @@ export default  function DeleteProductModal ({show, onClose, onProductAdded, pro
     const confirm = async () => {
       const response = await apiService.delete(`/products/delete/${dataid}`)
       console.log(response)
-      
       if(response.success){
-        alert('Producto eliminado');
+        toast.success('Producto eliminado correctamente');
         onProductAdded();
         onClose(); 
       }else {
-
+        toast.error('Error al eliminar el producto');
         console.log(response)
-
       }  
     }
     

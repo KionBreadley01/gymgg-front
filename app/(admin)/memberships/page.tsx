@@ -175,7 +175,7 @@ export default function Memberships() {
             {/* Botón agregar membresía */}
             <button 
               onClick={() => setShowAddModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
+              className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium flex items-center space-x-2"
             >
               <Plus className="h-5 w-5" />
               <span>Agregar Membresía</span>
