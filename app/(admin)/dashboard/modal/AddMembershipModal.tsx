@@ -17,7 +17,7 @@ const [memprice, setMemPrice ]= useState("");
 const [memduracion, setMemDuracion ]= useState("");
 const [memstatus, setMemStatus ]= useState(false);
 
-const [memoffers, setMemOffers ]= useState<String[]>(["hishaois"]);
+const [memoffers, setMemOffers ]= useState<String[]>(["Acceso al gym"]);
 
 
 
@@ -54,6 +54,7 @@ const submitForm = async () => {
       if (response?.id) {
         console.log('Producto agregado correctamente');
         onMembership();
+        resetForm();
         onClose();
       } else {
         console.log('Respuesta sin ID', response);
@@ -61,7 +62,10 @@ const submitForm = async () => {
     } catch (error) {
       console.error("Error al crear membresía:", error);
     }
+    
   } else {
+    console.log(memduracion)
+
     console.warn("Formulario incompleto");
   }
 };
@@ -186,7 +190,7 @@ const updateEditOferta = (index: number, value: string) => {
               ))}
               <button
                 type="button"
-                onClick={()=>addEditOferta()}
+                onClick={()=>{addEditOferta(); resetForm}}
                 className="text-blue-600 hover:text-blue-800 text-sm"
               >
                 + Agregar oferta

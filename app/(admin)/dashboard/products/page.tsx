@@ -79,6 +79,7 @@ export default function Products() {
   } catch (error) {
     console.log("Error: ", error);
   }
+}
 
 
   // Se guardan los datos optenidos de la base de datos
@@ -376,4 +377,4 @@ export default function Products() {
       </div>
     </div>
   );
-}}
+}

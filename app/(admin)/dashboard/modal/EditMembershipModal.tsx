@@ -31,7 +31,7 @@ useEffect(() => {
     setMemNombre(membership.name || '');
     setMemPrice(String(membership.price || ''));
     setMemDuracion(membership.duration || '');
-    setMemStatus(membership.status || '');
+    setMemStatus(membership.status || true);
     setMemOffers(membership.ofertas_membresia || []);
   
   }
@@ -42,9 +42,9 @@ useEffect(() => {
     if (
       memNombre &&
       memprice &&
-      memstatus &&
       memduracion &&
-    memoffers
+      memoffers ||
+      memstatus 
     ) {
    const form = {
       name_membership: memNombre,
@@ -58,7 +58,7 @@ useEffect(() => {
 
       if (response.id) {
       console.log('Producto agregado correctamente');
-onMembership();
+    onMembership();
     onClose();
     alert('Producto actualizado exitozamente');
    // Cerrar modal
@@ -67,6 +67,12 @@ onMembership();
        console.log(response)
       }
 
+    }else{
+      console.log(memstatus);
+      console.log(memNombre)
+      console.log(memduracion)
+      console.log(memoffers)
+      console.log("error");
     }
   };
 
@@ -219,6 +225,10 @@ const updateEditOferta = (index: number, value: string) => {
             <button
             
               type="submit"
+              onClick={(e)=>{
+                console.log("hola")
+                submitForm;
+              } }
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Actualizar Membresía

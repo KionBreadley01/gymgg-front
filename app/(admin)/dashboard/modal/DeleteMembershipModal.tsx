@@ -9,6 +9,7 @@ interface DeleteMembershipModalProps {
   onClose: () => void;
   onConfirm: () => void;
   membership: any;
+
 }
 
 
@@ -26,14 +27,14 @@ export default function DeleteMembershipModal({ isOpen, onClose, onConfirm, memb
     }, [membership, isOpen]);
 
 
-
+console.log("data id"+membership);
     const confirm = async () => {
       const response = await apiService.delete(`/membership/delete/${dataid}`)
       console.log(response)
       
       if(response.success){
         alert('producto eliminado');
-        membership();
+        onConfirm();
         onClose(); 
       }else {
         console.log(response)

@@ -77,8 +77,6 @@ export default function Memberships() {
     duration:  m.duration_membership,
     status:m.status_membership,
     ofertas_membresia:m.offers_membership
-
-
   }));
 
     const filteredMemberships = membership.filter(memFilt =>
@@ -263,7 +261,9 @@ export default function Memberships() {
 
                         </button>
                         <button 
-                          onClick={(e) => {e.stopPropagation(); setShowDeleteModal(true)}}
+                          onClick={(e) => {
+                              handleProductClickGet(plan)
+                             setShowDeleteModal(true)}}
                           className="text-red-600 hover:text-red-900 p-1 rounded"
                         >
                           <Trash2 className="h-4 w-4" />
