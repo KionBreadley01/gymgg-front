@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> a2a03d3cc36439c622da9a20c5894b227c817b47
 "use client";
 
 import apiService from "@/app/Service/apiService";
@@ -50,20 +53,35 @@ const AddUserModal = ({
             const form = {
                 name: dataName,
                 email: dataEmail,
+<<<<<<< HEAD
                 membership: dataMembership,
                 date_pay: dataDatePay + "T00:00:00Z",
+=======
+                membership_id: dataMembership,
+                date_pay: dataDatePay,
+>>>>>>> a2a03d3cc36439c622da9a20c5894b227c817b47
                 password: dataPassword,
             };
 
             const response = await apiService.post("/useraccount/create", form);
 
             if (response && response.id) {
+<<<<<<< HEAD
                 console.log("Producto agregado correctamente");
+=======
+                console.log("Usuario agregado correctamente");
+>>>>>>> a2a03d3cc36439c622da9a20c5894b227c817b47
                 onUserAdded();
                 resetForm();
                 onClose(); // Cerrar modal
             } else {
                 console.log("llego aqui?", response);
+<<<<<<< HEAD
+=======
+                onUserAdded();
+                resetForm();
+                onClose();
+>>>>>>> a2a03d3cc36439c622da9a20c5894b227c817b47
             }
         }
     };
@@ -186,6 +204,7 @@ const AddUserModal = ({
     );
 };
 
+<<<<<<< HEAD
 export default AddUserModal;
 
 // 'use client';
@@ -362,3 +381,6 @@ export default AddUserModal;
 // };
 
 // export default AddUserModal;
+=======
+export default AddUserModal;
+>>>>>>> a2a03d3cc36439c622da9a20c5894b227c817b47

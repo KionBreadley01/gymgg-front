@@ -29,7 +29,6 @@ interface SaleData {
     items: SaleItem[];
 }
 
-
 const AddSaleModal = ({
     show,
     onClose,
@@ -117,7 +116,7 @@ const AddSaleModal = ({
         const total = parseFloat(calculateTotal());
 
         const data = {
-            user: selectedUserId,
+            user_id: selectedUserId,
             total_price: total,
             items: saleproduct.map(item => {
                 const productData = products.find(p => p.id === item.product);
