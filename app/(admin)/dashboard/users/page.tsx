@@ -14,6 +14,20 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AddUserModal from '../modal/AddUserModal';
+import EditUsertModal from '../modal/EditUserModal';
+import DeleteUserModal from '../modal/DeleteUserModal';
+
+import { jwtDecode } from "jwt-decode";
+
+interface TokenPayload {
+  user_id: number; // o "id", según cómo tu backend construya el token
+  email: string;
+  exp: number;
+  iat: number;
+}
+
+
+
 
 // Tipos de datos
 interface NewUser {
@@ -24,6 +38,23 @@ interface NewUser {
 }
 
 export default function UserManagement() {
+
+
+const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
+
+useEffect(() => {
+  const token = localStorage.getItem("access");
+  if (token) {
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      setLoggedInUserId(decoded.user_id);
+    } catch (e) {
+      console.error("Token inválido:", e);
+    }
+  }
+}, []);
+
+
   // Estados principales
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -39,6 +70,11 @@ export default function UserManagement() {
     status: 'Activo'
   });
   
+  const [onlyUser, setOnlyUser] = useState([]);
+
+
+
+
 
   // Configuración de paginación
   const usersPerPage = 5;
@@ -196,6 +232,13 @@ export default function UserManagement() {
     setCurrentPage(1);
   };
 
+
+     const handleUserClickGet = (GetUser: any) => {
+  setOnlyUser(GetUser)
+    return onlyUser
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -270,13 +313,13 @@ export default function UserManagement() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {currentUsers.map((user) => (
+                    {currentUsers.filter((u)=>u.id !==loggedInUserId).map((user) => (
                       <tr 
                         key={user.id}
                         className={`hover:bg-gray-50 transition-colors cursor-pointer ${
                           selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
                         }`}
-                        onClick={() => setSelectedUser(user.id)}
+                        onClick={() => {setSelectedUser(user.id); handleUserClickGet(user)}}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -365,7 +408,7 @@ export default function UserManagement() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Detalles del Usuario</h3>
                 <button 
-                  onClick={() => setSelectedUser(null)}
+                  onClick={() => {setSelectedUser(null)}}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
@@ -414,11 +457,23 @@ export default function UserManagement() {
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
 
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button 
+                  onClick={()=> {
+                    setShowAddForm2(true);
+
+
+                    console.log(onlyUser)
+                  }}
+                  
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <Edit className="h-4 w-4" />
                     <span>Editar usuario</span>
                   </button>
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                  <button 
+                  onClick={()=> {
+                    SetremoveUser(true);
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                     <Trash2 className="h-4 w-4" />
                     <span>Eliminar usuario</span>
                   </button>
@@ -536,9 +591,22 @@ export default function UserManagement() {
               onClose={() => setShowAddForm(false)}
               onUserAdded={fetchUsers}
             />
-
           </div>
+          
         )}
+               <EditUsertModal
+            show={showAddForm2}
+            onClose={() => setShowAddForm2(false)}
+            onUserEdited= {fetchUsers}
+            userSelected={onlyUser}
+            />
+
+        <DeleteUserModal
+        show={removeUser}
+        onClose={()=> SetremoveUser(false)}
+        onUserEdited={fetchUsers}
+        userSelected={onlyUser}
+        />
       </div>
     </div>
   );

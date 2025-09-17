@@ -20,7 +20,7 @@ const AddUserModal = ({
     const [dataDatePay, setDataDatePay] = useState('');
     const [dataPassword, setDataPassword] = useState('');
     const [Membership, setMembership] = useState<
-        {id:string; name_membership:string; membership_duration:string}[]
+        {id:string; name_membership:string; duration_membership:string}[]
     >([]);
 
     useEffect(() => {
@@ -45,6 +45,7 @@ const AddUserModal = ({
             dataMembership &&
             dataDatePay &&
             dataPassword
+        
         ) {
             const form = {
                 name: dataName,
@@ -120,7 +121,7 @@ const AddUserModal = ({
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Correo de Usuario"
                             required
-                        />
+                        />-
                     </div>
 
                     <div>
@@ -134,7 +135,7 @@ const AddUserModal = ({
                             <option value="">Selecciona</option>
                             {Membership.map(cat => (
                                 <option key={cat.id} value={cat.id}>
-                                {cat.name_membership} - {cat.membership_duration} Meses
+                                {cat.name_membership} - {cat.duration_membership} Meses
                                 </option>
                             ))}
                         </select>

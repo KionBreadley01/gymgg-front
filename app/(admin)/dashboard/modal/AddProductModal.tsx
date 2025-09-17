@@ -4,6 +4,8 @@ import apiService from "@/app/Service/apiService";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
+
 
 const AddProductModal =({
   show,
@@ -62,13 +64,14 @@ const resetForm = () => {
 
 
       if (response && response.id) {
-        console.log('Producto agregado correctamente');
+                toast.success('Producto Añadido correctamente');
+        
        onProductAdded();
        resetForm();
         onClose(); // Cerrar modal
       } else {
       
-        console.log('llego aqui?',response);
+        console.warn('llego aqui?',response);
       }
     }
   };

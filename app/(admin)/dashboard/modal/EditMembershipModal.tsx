@@ -68,10 +68,7 @@ useEffect(() => {
       }
 
     }else{
-      console.log(memstatus);
-      console.log(memNombre)
-      console.log(memduracion)
-      console.log(memoffers)
+ 
       console.log("error");
     }
   };

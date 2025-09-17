@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import apiService from '@/app/Service/apiService';
+import { toast } from 'react-toastify';
 
 interface AddMembershipModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ const submitForm = async () => {
       console.log("response", response);
   
       if (response?.id) {
-        console.log('Producto agregado correctamente');
+     toast.success("Membresia modificada Correctamete");
         onMembership();
         resetForm();
         onClose();
