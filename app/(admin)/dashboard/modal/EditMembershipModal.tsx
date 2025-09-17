@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import apiService from '@/app/Service/apiService';
+import { toast } from 'react-toastify';
+
 
 interface EditMembershipModalProps {
   isOpen: boolean;
@@ -57,10 +59,9 @@ useEffect(() => {
       console.log("response"+response)
 
       if (response.id) {
-      console.log('Producto agregado correctamente');
-    onMembership();
+toast.success(`Membresia ${memNombre} fue editada correctamente`)
+        onMembership();
     onClose();
-    alert('Producto actualizado exitozamente');
    // Cerrar modal
       } else {
 

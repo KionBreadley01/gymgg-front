@@ -16,6 +16,10 @@ const AddProductModal =({
   onClose: () => void;
   onProductAdded: () => void;
 }) => {
+
+
+
+  
   const [dataTitle, setDataTitle] = useState('');
   const [dataPrice, setDataPrice] = useState('');
   const [dataStock, setDataStock] = useState('');

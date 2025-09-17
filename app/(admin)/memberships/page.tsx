@@ -9,6 +9,7 @@ import DeleteMembershipModal from '../dashboard/modal/DeleteMembershipModal';
 import { type } from 'os';
 
 export default function Memberships() {
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -45,8 +46,19 @@ export default function Memberships() {
 
 
   const fetchMembersip= async () => {
+               const token = localStorage.getItem('access');
+
+
     try{
-        fetch("http://127.0.0.1:8000/membership/")
+        fetch("http://127.0.0.1:8000/membership/",{
+
+              method: "GET",
+           headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+      })
         .then(async (response) => {
           console.log("Response: ", response.status) 
           if(!response.ok){
@@ -67,9 +79,7 @@ export default function Memberships() {
     }
   }
 
-    if (member.length === 0) {
-    return <div className="text-white">¡Sin productos!</div>
-  }
+ 
  const membership = member.map((m) => ({
     id: m.id,
     name: m.name_membership,  
@@ -91,16 +101,6 @@ export default function Memberships() {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredMemberships.slice(indexOfFirstProduct, indexOfLastProduct);
 
-
- const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      setSelectedProduct(null);
-    }
-  };
-
-
-
    const handleProductClickGet = (GetMem: any) => {
   setOnlyMem(GetMem)
     console.log(GetMem)
@@ -109,39 +109,8 @@ export default function Memberships() {
 
 
 
-
-  const handleAddMembership = (membership: any) => {
-    const newId = Math.max(...member.map(p => p.id)) + 1;
-    const membershipToAdd = {
-      ...membership,
-      id: newId,
-      status: 'Activa'
-    };
-    setMember([...membership, membershipToAdd]);
-    alert('Membresía agregada exitosamente');
-    setShowAddModal(false);
-  };
-
-  const handleEditMembership = (membership: any) => {
-    const updatedPlans = member.map(memFilt => 
-      memFilt.id === selectedMembership.id 
-        ? { ...membership, id: selectedMembership.id, status: selectedMembership.status }
-        : memFilt
-    );
-    setMember(updatedPlans);
-    alert('Membresía actualizada exitosamente');
-    setShowEditModal(false);
-    setSelectedMembership(null);
-  };
-
-  const handleDeleteMembership = () => {
-    const updatedPlans = member.filter(plan => plan.id !== selectedMembership.id);
-    setMember(updatedPlans);
-    alert('Membresía eliminada exitosamente');
-    setShowDeleteModal(false);
-    setSelectedMembership(null);
-  };
-
+const hasMemberships = currentProducts.length > 0;
+console.log(hasMemberships)
 
   
   return (
@@ -184,8 +153,14 @@ export default function Memberships() {
 
 
         {/* Tabla de membresías */}
+
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
+            {member.length===0? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Membresias!</div>
+            ): (
+
+          
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -226,7 +201,7 @@ export default function Memberships() {
                           ? 'bg-blue-100 text-blue-800' 
                           : 'bg-purple-100 text-purple-800'
                       }`}>
-                        {plan.duration === 'mensual' ? 'Mensual' : 'Anual'}
+                        {plan.duration === 'Mensual' ? 'Mensual' : 'Anual'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -274,6 +249,7 @@ export default function Memberships() {
                 ))}
               </tbody>
             </table>
+              )}
           </div>
         </div>
 

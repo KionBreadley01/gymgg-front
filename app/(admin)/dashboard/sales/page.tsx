@@ -7,6 +7,9 @@ import AddSaleModal from '../modal/AddSaleModal';
 import DeleteSaleModal from '../modal/DeleteSaleModal';
 
 export default function SalesPage() {
+
+
+  
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
   // Estado para registrar el ID de la venta que ha sido seleccionada para ver más detalles.
@@ -68,7 +71,7 @@ export default function SalesPage() {
       fetch("http://127.0.0.1:8000/Sales/",{
 
               method: "GET",
-      headers: {
+           headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
         ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega

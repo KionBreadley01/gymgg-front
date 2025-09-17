@@ -3,6 +3,8 @@
 import apiService from '@/app/Service/apiService';
 import { Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
 
 interface DeleteMembershipModalProps {
   isOpen: boolean;
@@ -27,13 +29,11 @@ export default function DeleteMembershipModal({ isOpen, onClose, onConfirm, memb
     }, [membership, isOpen]);
 
 
-console.log("data id"+membership);
     const confirm = async () => {
       const response = await apiService.delete(`/membership/delete/${dataid}`)
-      console.log(response)
       
       if(response.success){
-        alert('producto eliminado');
+        toast.success("Membresia fue eliminada correctamente")
         onConfirm();
         onClose(); 
       }else {

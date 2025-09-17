@@ -24,7 +24,17 @@ const AddUserModal = ({
     >([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/membership") // ajusta la URL según tu backend
+                       const token = localStorage.getItem('access');
+
+        fetch("http://localhost:8000/membership",{
+
+              method: "GET",
+           headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+      }) // ajusta la URL según tu backend
             .then((res) => res.json())
             .then((data) => setMembership(data))
             .catch((err) => console.error("Error cargando categorías", err));

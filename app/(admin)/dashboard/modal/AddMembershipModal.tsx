@@ -157,7 +157,8 @@ const updateEditOferta = (index: number, value: string) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={memduracion}
               onChange={(e) => setMemDuracion( e.target.value)}
-            >
+            >                  <option value="">Selecionar</option>
+
               <option value="Mensual">Mensual</option>
               <option value="Anual">Anual</option>
             </select>

@@ -40,9 +40,12 @@ interface NewUser {
 export default function UserManagement() {
 
 
+
+
 const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
 
 useEffect(() => {
+  
   const token = localStorage.getItem("access");
   if (token) {
     try {
@@ -238,7 +241,7 @@ useEffect(() => {
     return onlyUser
   };
 
-
+console.log(currentUsers.length)
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -295,8 +298,9 @@ useEffect(() => {
           {/* Tabla de usuarios */}
           <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${selectedUser ? 'flex-1' : 'w-full'}`}>
             <div className="overflow-x-auto">
-              {currentUsers.length === 0 ? (
-                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios!</div>
+              {currentUsers.length <= 1? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios,  Solo estas tu!</div>
+                
               ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">

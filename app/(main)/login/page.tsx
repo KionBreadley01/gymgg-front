@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import apiService from '@/app/Service/apiService';
+import { toast } from 'react-toastify';
 
 export default function Login() {
 
@@ -30,12 +31,11 @@ export default function Login() {
         localStorage.setItem("refresh", respuesta.refresh);
         localStorage.setItem("user", JSON.stringify("usuario"));
 
-        alert("login existoso");
-
+toast.success("Bienvenido "+email);
         router.push('/dashboard');
       } else{
    
-      alert("Error de credenciales");
+      toast.error("Error de credenciales");
 
     }
   } catch (err){

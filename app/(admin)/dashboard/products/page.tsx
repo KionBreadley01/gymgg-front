@@ -12,7 +12,11 @@ import DeleteProductModal from '../modal/DeleteProductModal';
 
 
 
+
 export default function Products() {
+
+
+
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
   // Estado para registrar el ID del producto que ha sido seleccionado para ver más detalles.
@@ -25,9 +29,6 @@ export default function Products() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
-
-
-
 
 
   useEffect(() => {
@@ -50,9 +51,9 @@ export default function Products() {
   const [product, setProdct] = useState<Products[]>([])
 
   const fetchProducts = async () => {
- 
+     const token = localStorage.getItem('access');
+
   try {
-    const token = localStorage.getItem('access');
 
     fetch("http://127.0.0.1:8000/products/", {
       method: "GET",

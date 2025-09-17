@@ -22,9 +22,34 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
 
   const [dataid, setDataid] = useState('');
 
+  const [Membership, setMembership] = useState<
+        {id:string; name_membership:string; duration_membership:string}[]
+    >([]);
+
+
+    useEffect(() => {
+            const token = localStorage.getItem('access');
+
+        fetch("http://localhost:8000/membership",{
+
+              method: "GET",
+           headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+      }) // ajusta la URL según tu backend
+            .then((res) => res.json())
+            .then((data) => setMembership(data))
+            .catch((err) => console.error("Error cargando categorías", err));
+    }, []);
+
+
+
     useEffect(() => {
       if (userSelected && show) {
         setDataid(userSelected.id || '')
+        setMembership(userSelected.membership.name_membership|| "")
       }
     }, [userSelected, show]);
 
@@ -43,7 +68,6 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
       }  
     }
     
-
 
     if (!show || !userSelected) return null;
     
@@ -76,14 +100,9 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
                 <p className="text-sm text-gray-700">
               <strong>Usuario a eliminar:</strong> {userSelected.name} 
             </p>
-            <p className="text-sm text-gray-600 mt-1">
-              <strong>De Membresia:</strong> {}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              <strong>Por un total:</strong>  ${}
-            </p>
 
-        </div>
+      
+          </div>
 
           <div className="flex space-x-3">
             <button
