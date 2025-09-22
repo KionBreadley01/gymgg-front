@@ -11,7 +11,12 @@ import UpdateProductModal from '../modal/UpdateProductModel';
 import DeleteProductModal from '../modal/DeleteProductModal';
 
 
+
+
 export default function Products() {
+
+
+
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
   // Estado para registrar el ID del producto que ha sido seleccionado para ver más detalles.
@@ -25,7 +30,9 @@ export default function Products() {
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
 
+
   useEffect(() => {
+
     fetchProducts();
   }, []);
   // Número de productos por página
@@ -42,29 +49,38 @@ export default function Products() {
   }
   
   const [product, setProdct] = useState<Products[]>([])
-  // Se realiza la peticion al back
-  const fetchProducts= async () => {
-    try{
-        fetch("http://127.0.0.1:8000/products/")
-        .then(async (response) => {
-          console.log("Response: ", response.status) 
-          if(!response.ok){
-              const text = await response.text()
-              console.log("Contenido de error: ", text) 
-              throw new Error(`Error al obtener los datos ${response.status}`)
-          }
-          return response.json()
-          })
-            .then((data) => {
-              // console.log("Datos mostrados: ", data)
-              setProdct(data)
-            })
-          .catch((error) => console.log("Error: ", error)) 
 
-    } catch (error){
-      console.log("Error: ", error);
-    }
+  const fetchProducts = async () => {
+     const token = localStorage.getItem('access');
+
+  try {
+
+    fetch("http://127.0.0.1:8000/products/", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    })
+      .then(async (response) => {
+           console.log("ento el respuest ")
+        if (!response.ok) {
+          const text = await response.text();
+          console.log("Contenido de error: ", text);
+          throw new Error(`Error al obtener los datos ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProdct(data);
+
+      })
+      .catch((error) => console.log("Error: ", error));
+  } catch (error) {
+    console.log("Error: ", error);
   }
+}
 
 
   // Se guardan los datos optenidos de la base de datos
@@ -98,6 +114,9 @@ export default function Products() {
       setSelectedProduct(null);
     }
   };
+
+
+
 
 
   // Función para manejar la selección/deselección de productos
@@ -246,7 +265,7 @@ export default function Products() {
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={()=> {
                           setShowAddForm2(true);
                           setSelectedProduct(product.id);
@@ -256,7 +275,7 @@ export default function Products() {
                         Editar
                       </button>
                       <button 
-                        className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
+                        className="flex items-center px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => {e.stopPropagation(); SetremoveProduct(true)}}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />

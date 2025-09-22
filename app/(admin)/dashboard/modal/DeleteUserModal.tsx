@@ -9,33 +9,58 @@ import { toast } from 'react-toastify';
  
 
 
-interface DeleteProductProp {
+interface DeleteUserProp {
     show: boolean;
     onClose:()=> void;
-    onProductAdded: any;
-    productget: any
+    onUserEdited: any;
+    userSelected: any;
 }
 
 
 
-export default  function DeleteProductModal ({show, onClose, onProductAdded, productget}: DeleteProductProp){
+export default  function DeleteUserModal ({show, onClose, onUserEdited, userSelected}: DeleteUserProp){
 
   const [dataid, setDataid] = useState('');
 
+  const [Membership, setMembership] = useState<
+        {id:string; name_membership:string; duration_membership:string}[]
+    >([]);
+
+
     useEffect(() => {
-      if (productget && show) {
-        setDataid(productget.id || '')
+            const token = localStorage.getItem('access');
+
+        fetch("http://localhost:8000/membership",{
+
+              method: "GET",
+           headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
       }
-    }, [productget, show]);
+      }) // ajusta la URL según tu backend
+            .then((res) => res.json())
+            .then((data) => setMembership(data))
+            .catch((err) => console.error("Error cargando categorías", err));
+    }, []);
+
+
+
+    useEffect(() => {
+      if (userSelected && show) {
+        setDataid(userSelected.id || '')
+        setMembership(userSelected.membership.name_membership|| "")
+      }
+    }, [userSelected, show]);
 
 
 
     const confirm = async () => {
-      const response = await apiService.delete(`/products/delete/${dataid}`)
+      const response = await apiService.delete(`/useraccount/delete/${dataid}`)
       console.log(response)
       if(response.success){
-        toast.success('Producto eliminado correctamente');
-        onProductAdded();
+        toast.success(`El ${userSelected.name} ha sido eliminado correctamente`);
+        onUserEdited();
         onClose(); 
       }else {
         toast.error('Error al eliminar el producto');
@@ -44,14 +69,9 @@ export default  function DeleteProductModal ({show, onClose, onProductAdded, pro
     }
     
 
-
-    if (!show || !productget) return null;
+    if (!show || !userSelected) return null;
     
-    const cnt= parseFloat(productget.stock)
-    const precio=parseFloat(productget.price)
-    const tot= cnt*precio
-
-    
+ 
     return(
        <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
@@ -71,23 +91,18 @@ export default  function DeleteProductModal ({show, onClose, onProductAdded, pro
                    <Trash2 className="h-6 w-6 text-red-600" /> 
                 </div>
             <div>
-            <h4 className="text-lg font-medium text-gray-900">¿Estás seguro de elimina el producto?</h4>
+            <h4 className="text-lg font-medium text-gray-900">¿Estás seguro de elimina este usuario?</h4>
               <p className="text-gray-500">Esta acción no se puede deshacer</p>
             </div>
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
                 <p className="text-sm text-gray-700">
-              <strong>producto a eliminar:</strong> {productget.name} 
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              <strong>Con cantidad:</strong> {productget.stock}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              <strong>Por un total:</strong>  ${tot}
+              <strong>Usuario a eliminar:</strong> {userSelected.name} 
             </p>
 
-        </div>
+      
+          </div>
 
           <div className="flex space-x-3">
             <button

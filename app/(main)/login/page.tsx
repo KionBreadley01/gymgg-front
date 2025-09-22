@@ -4,14 +4,46 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { use, useState } from 'react';
+import apiService from '@/app/Service/apiService';
+import { toast } from 'react-toastify';
 
 export default function Login() {
+
+  const [email, setEmail] = useState("");
+  const [password, setPasword] = useState("");
+
+
+
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async(e: React.FormEvent) => {
+    
     e.preventDefault();
-    // Redirige a la página del dashboard después del login
-    router.push('/dashboard');
+ 
+
+  try {
+    const respuesta = await apiService.post("/api/auth/login/",{email,password});
+   console.log(respuesta.access)
+    if(respuesta.access && respuesta.refresh){
+        localStorage.setItem("access", respuesta.access);
+        localStorage.setItem("refresh", respuesta.refresh);
+        localStorage.setItem("user", JSON.stringify("usuario"));
+
+toast.success("Bienvenido "+email);
+        router.push('/dashboard');
+      } else{
+   toast.dismiss()
+      toast.error("Error de credenciales");
+
+    }
+  } catch (err){
+      console.error(err);
+            toast.error("Error de credenciales");
+     
+  }
+  
   };
 
   return (
@@ -34,9 +66,12 @@ export default function Login() {
           <div>
             <label className="block text-gray-800 mb-2 font-medium">Usuario</label>
             <input
+
               type="text"
               className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
-              placeholder="Tu usuario"
+              placeholder="Tu correo"
+              value={email}
+              onChange={(e)=> setEmail(e.target.value)}
               required
             />
           </div>
@@ -47,6 +82,8 @@ export default function Login() {
               type="password"
               className="w-full px-4 py-3 border border-gray-500 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
               placeholder="Tu contraseña"
+              value={password}
+              onChange={(e)=> setPasword(e.target.value)}
               required
             />
           </div>

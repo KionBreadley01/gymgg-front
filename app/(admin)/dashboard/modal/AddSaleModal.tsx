@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import apiService from "@/app/Service/apiService";
+import { toast } from 'react-toastify';
 
 interface Product {
     id: string;
@@ -28,7 +29,6 @@ interface SaleData {
     items: SaleItem[];
 }
 
-
 const AddSaleModal = ({
     show,
     onClose,
@@ -49,8 +49,18 @@ const AddSaleModal = ({
 
     // Cargar productos al abrir el modal
     // Datos de productos
+
     useEffect(() => {
-        fetch('http://localhost:8000/products/') 
+            const token = localStorage.getItem('access');
+
+        fetch('http://localhost:8000/products/',{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    }) 
         .then(res => res.json())
         .then(data => setProducts(data))
         .catch(err => console.error('Error cargando categorías', err));
@@ -58,7 +68,16 @@ const AddSaleModal = ({
 
     // Datos
     useEffect(() => {
-        fetch('http://localhost:8000/useraccount/') 
+            const token = localStorage.getItem('access');
+
+        fetch('http://localhost:8000/useraccount/',{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    }) 
         .then(res => res.json())
         .then(data => setUsers(data))
         .catch(err => console.error('Error cargando categorías', err));
@@ -92,7 +111,7 @@ const AddSaleModal = ({
 
     const submitSale = async () => {
         if (saleproduct.length === 0 || !selectedUserId) {
-            alert("Selecciona un usuario y al menos un producto");
+            toast.error("Selecciona un usuario y al menos un producto");
             return;
         }
 
@@ -100,7 +119,7 @@ const AddSaleModal = ({
         const total = parseFloat(calculateTotal());
 
         const data = {
-            user: selectedUserId,
+            user_id: selectedUserId,
             total_price: total,
             items: saleproduct.map(item => {
                 const productData = products.find(p => p.id === item.product);
@@ -113,33 +132,18 @@ const AddSaleModal = ({
         };
 
         console.log("Enviando venta al backend:", data);
+      const response = await apiService.post('/Sales/create', data);
+              if (response && response.id) {
+        console.log('venta realizada correctamente');
+      setSaleproduct([]);
+      onSaleAdded()
+        setSelectedUserId("");
+        onClose(); // Cerrar modal
+      } else {
+      
+        console.log('llego aqui?',response);
+      }
 
-        try {
-            const response = await fetch("http://localhost:8000/Sales/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Error 400 completo:", JSON.stringify(errorData, null, 2));
-                throw new Error("Error al registrar la venta");
-            }
-
-            const result = await response.json();
-            console.log("Venta registrada:", result);
-
-            // Reset UI
-            onSaleAdded();
-            onClose();
-            setSaleproduct([]);
-            setSelectedUserId("");
-        } catch (error) {
-            console.error("Error al guardar venta:", error);
-        }
     };
 
     if (!show) return null;

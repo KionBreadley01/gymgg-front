@@ -12,6 +12,22 @@ import {
   ChevronRight 
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import AddUserModal from '../modal/AddUserModal';
+import EditUsertModal from '../modal/EditUserModal';
+import DeleteUserModal from '../modal/DeleteUserModal';
+
+import { jwtDecode } from "jwt-decode";
+
+interface TokenPayload {
+  user_id: number; // o "id", según cómo tu backend construya el token
+  email: string;
+  exp: number;
+  iat: number;
+}
+
+
+
 
 // Tipos de datos
 interface NewUser {
@@ -22,11 +38,33 @@ interface NewUser {
 }
 
 export default function UserManagement() {
+
+
+
+
+const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
+
+useEffect(() => {
+  
+  const token = localStorage.getItem("access");
+  if (token) {
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      setLoggedInUserId(decoded.user_id);
+    } catch (e) {
+      console.error("Token inválido:", e);
+    }
+  }
+}, []);
+
+
   // Estados principales
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [filterMembership, setFilterMembership] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm2, setShowAddForm2] = useState(false);
+  const [removeUser, SetremoveUser] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [newUser, setNewUser] = useState<NewUser>({
     name: '',
@@ -34,19 +72,33 @@ export default function UserManagement() {
     membership: 'Básica',
     status: 'Activo'
   });
+  
+  const [onlyUser, setOnlyUser] = useState([]);
+
+
+
+
 
   // Configuración de paginación
   const usersPerPage = 5;
 
   useEffect(() => {
-    fetchProducts();
+    fetchUsers();
   }, []);
+
+    type Membership = {
+    id: string;
+    name_membership: string;
+    price_membership: number;
+    offers_membership: number;
+    membership_duration: number;
+  };
 
   type User = {
     id: number,
     email: string,
     name: string,
-    membership: string,
+    membership: Membership,
     is_active: Boolean,
     date_pay: Date,
     date_expiration: Date,
@@ -55,9 +107,18 @@ export default function UserManagement() {
   const [user, setUser] = useState<User[]>([])
 
   // Se realiza la peticion al back
-  const fetchProducts= async () => {
+  const fetchUsers= async () => {
+            const token = localStorage.getItem('access');
+
     try{
-        fetch("http://127.0.0.1:8000/useraccount/")
+        fetch("http://127.0.0.1:8000/useraccount/",{
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+    })
         .then(async (response) => {
           console.log("Response: ", response.status) 
           if(!response.ok){
@@ -123,7 +184,7 @@ export default function UserManagement() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
+    const matchesMembership = filterMembership === 'all' || user.membership.id === filterMembership;
     return matchesSearch && matchesMembership;
   });
 
@@ -137,13 +198,10 @@ export default function UserManagement() {
   // Manejadores de eventos
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
-      alert('Por favor completa todos los campos requeridos');
+      toast.error('Por favor completa todos los campos requeridos');
       return;
     }
-    
-    console.log('Nuevo usuario:', newUser);
-    alert('Usuario agregado exitosamente');
-    
+    toast.success('Usuario agregado exitosamente');
     setNewUser({
       name: '',
       email: '',
@@ -177,6 +235,13 @@ export default function UserManagement() {
     setCurrentPage(1);
   };
 
+
+     const handleUserClickGet = (GetUser: any) => {
+  setOnlyUser(GetUser)
+    return onlyUser
+  };
+
+console.log(currentUsers.length)
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -233,8 +298,9 @@ export default function UserManagement() {
           {/* Tabla de usuarios */}
           <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${selectedUser ? 'flex-1' : 'w-full'}`}>
             <div className="overflow-x-auto">
-              {currentUsers.length === 0 ? (
-                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios!</div>
+              {currentUsers.length <= 1? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios,  Solo estas tu!</div>
+                
               ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
@@ -251,18 +317,18 @@ export default function UserManagement() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {currentUsers.map((user) => (
+                    {currentUsers.filter((u)=>u.id !==loggedInUserId).map((user) => (
                       <tr 
                         key={user.id}
                         className={`hover:bg-gray-50 transition-colors cursor-pointer ${
                           selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
                         }`}
-                        onClick={() => setSelectedUser(user.id)}
+                        onClick={() => {setSelectedUser(user.id); handleUserClickGet(user)}}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                              <User className="h-5 w-5 text-yellow-600" />
+                              <User className="h-5 w-5 text-black-600" />
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -271,13 +337,13 @@ export default function UserManagement() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user.membership)}`}>
-                            {user.membership}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership?.name_membership || "Sin membresías")}`}>
+                            {user?.membership?.name_membership || "Sin membresías"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.is_active ? "Activo" : "Suspendido")}`}>
-                            {user.is_active ? "Activo" : "Suspendido"}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.membership ? "Activo" : "Suspendido")}`}>
+                            {user.membership ? "Activo" : "Suspendido"}
                           </span>
                         </td>
                       </tr>
@@ -346,7 +412,7 @@ export default function UserManagement() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Detalles del Usuario</h3>
                 <button 
-                  onClick={() => setSelectedUser(null)}
+                  onClick={() => {setSelectedUser(null)}}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
@@ -369,14 +435,14 @@ export default function UserManagement() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Membresía:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData.membership)}`}>
-                      {selectedUserData.membership}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData?.membership?.id)}`}>
+                      {selectedUserData?.membership?.name_membership}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Estado:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.is_active ? "Activo" : "Suspendido")}`}>
-                      {selectedUserData.is_active ? "Activo" : "Suspendido"}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.membership ? "Activo" : "Suspendido")}`}>
+                      {selectedUserData.membership ? "Activo" : "Suspendido"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -394,15 +460,24 @@ export default function UserManagement() {
               <div className="pt-4 border-t border-gray-200">
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    <Eye className="h-4 w-4" />
-                    <span>Ver detalles</span>
-                  </button>
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+
+                  <button 
+                  onClick={()=> {
+                    setShowAddForm2(true);
+
+
+                    console.log(onlyUser)
+                  }}
+                  
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <Edit className="h-4 w-4" />
                     <span>Editar usuario</span>
                   </button>
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                  <button 
+                  onClick={()=> {
+                    SetremoveUser(true);
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                     <Trash2 className="h-4 w-4" />
                     <span>Eliminar usuario</span>
                   </button>
@@ -467,7 +542,7 @@ export default function UserManagement() {
                   <select
                     id="membership"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={newUser.membership}
                     onChange={(e) => handleInputChange('membership', e.target.value as 'Premium' | 'Plus' | 'Básica')}
                   >
@@ -485,7 +560,7 @@ export default function UserManagement() {
                   <select
                     id="status"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={newUser.status}
                     onChange={(e) => handleInputChange('status', e.target.value as 'Activo' | 'Suspendido')}
                   >
@@ -494,28 +569,49 @@ export default function UserManagement() {
                   </select>
                 </div>
 
-                {/* Botones */}
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddForm(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleAddUser}
-                    className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-                  >
-                    Agregar Usuario
-                  </button>
-                </div>
+                  {/* Botones */}
+                  <div className="flex space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddForm(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddUser}
+                      className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                    >
+                      Agregar Usuario
+                    </button>
+                  </div>
               </div>
             </div>
+
+            {/* Modal para agregar usuario */}
+            <AddUserModal 
+              show={showAddForm}
+              onClose={() => setShowAddForm(false)}
+              onUserAdded={fetchUsers}
+            />
           </div>
+          
         )}
+               <EditUsertModal
+            show={showAddForm2}
+            onClose={() => setShowAddForm2(false)}
+            onUserEdited= {fetchUsers}
+            userSelected={onlyUser}
+            />
+
+        <DeleteUserModal
+        show={removeUser}
+        onClose={()=> SetremoveUser(false)}
+        onUserEdited={fetchUsers}
+        userSelected={onlyUser}
+        />
       </div>
     </div>
   );
-} 
+}

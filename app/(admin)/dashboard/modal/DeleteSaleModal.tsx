@@ -3,6 +3,7 @@
 import apiService from "@/app/Service/apiService";
 import { Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 interface DeleteSaleProp {
     show: boolean;
@@ -25,10 +26,11 @@ export default  function DeleteSaleModal ({show, onClose, onSaleAdded, saleget}:
         console.log(response)
 
         if(response.success){
-            alert('Rembolso realizado');
+            toast.success('Rembolso realizado');
             onSaleAdded();
             onClose(); 
         }else {
+            toast.error('Error al realizar el rembolso');
             console.log(response)
         }  
     }
@@ -66,10 +68,10 @@ export default  function DeleteSaleModal ({show, onClose, onSaleAdded, saleget}:
 
                     <div className="bg-gray-50 p-4 rounded-lg mb-6">
                         <p className="text-sm text-gray-700">
-                            <strong>Venta a rembolsar:</strong> {saleget.product[0].name_product} 
+                            <strong>Venta a rembolsar:</strong> {saleget.items[0].product.name_product}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
-                            <strong>Con cantidad:</strong> {saleget.product[0].quantity}
+                            <strong>Con cantidad:</strong> {saleget.items[0].product.quantity}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
                             <strong>Por un total:</strong>  ${saleget.total_price}

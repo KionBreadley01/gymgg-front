@@ -4,6 +4,7 @@ import apiService from "@/app/Service/apiService";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
   // Definir el tipo de datos y sus atributos
 
@@ -112,7 +113,7 @@ const resetForm = () => {
             <input
               type="text"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Ingresa el nombre"
               value={dataTitle}
               onChange={(e) => setDataTitle(e.target.value)}
@@ -128,7 +129,7 @@ const resetForm = () => {
            
             <select
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={dataCategory}
               onChange={(e) => setDataCategory(e.target.value)}
             >
@@ -149,7 +150,7 @@ const resetForm = () => {
               <input
                 type="text"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="00.00"
                 value={dataPrice}
                onChange={(e) => {
@@ -166,7 +167,7 @@ const resetForm = () => {
               <input
                 type="number"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0"
                 value={dataStock}
                 onChange={(e) => setDataStock(e.target.value)}
@@ -178,7 +179,7 @@ const resetForm = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
             <textarea
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Descripción del producto"
               value={dataDescription}
               onChange={(e) => setDataDescription(e.target.value)}
@@ -194,7 +195,7 @@ const resetForm = () => {
               Cancelar
             </button>
             <button
-            onClick={()=>alert('Producto actualizado exitozamente')}
+            onClick={()=>toast.success('Producto actualizado exitosamente')}
               type="submit"
             
               className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"

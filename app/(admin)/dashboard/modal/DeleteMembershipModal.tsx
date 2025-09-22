@@ -1,15 +1,49 @@
 'use client';
 
+import apiService from '@/app/Service/apiService';
 import { Trash2, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
 
 interface DeleteMembershipModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   membership: any;
+
 }
 
+
+
+
 export default function DeleteMembershipModal({ isOpen, onClose, onConfirm, membership }: DeleteMembershipModalProps) {
+
+
+  const [dataid, setDataid] = useState('');
+
+    useEffect(() => {
+      if (membership && isOpen) {
+        setDataid(membership.id || '')
+      }
+    }, [membership, isOpen]);
+
+
+    const confirm = async () => {
+      const response = await apiService.delete(`/membership/delete/${dataid}`)
+      
+      if(response.success){
+        toast.success("Membresia fue eliminada correctamente")
+        onConfirm();
+        onClose(); 
+      }else {
+        console.log(response)
+
+      }  
+    }
+
+
+
   if (!isOpen || !membership) return null;
 
   return (
@@ -56,7 +90,7 @@ export default function DeleteMembershipModal({ isOpen, onClose, onConfirm, memb
               Cancelar
             </button>
             <button
-              onClick={onConfirm}
+              onClick={confirm}
               className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Eliminar

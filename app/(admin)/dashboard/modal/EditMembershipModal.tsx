@@ -2,66 +2,104 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import apiService from '@/app/Service/apiService';
+import { toast } from 'react-toastify';
+
 
 interface EditMembershipModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (membership: any) => void;
   membership: any;
+  onMembership: ()=>void;
+  
 }
 
-export default function EditMembershipModal({ isOpen, onClose, onSubmit, membership }: EditMembershipModalProps) {
-  const [selectedMembership, setSelectedMembership] = useState<any>(null);
+export default function EditMembershipModal({ isOpen, onClose, onMembership, membership }: EditMembershipModalProps) {
 
-  useEffect(() => {
-    if (membership) {
-      setSelectedMembership({
-        ...membership,
-        ofertas_membresia: [...membership.ofertas_membresia, '']
-      });
+  const [dataid, setDataid] = useState('');
+
+const [memNombre, setMemNombre] = useState("");
+const [memprice, setMemPrice ]= useState("");
+const [memduracion, setMemDuracion ]= useState("");
+const [memstatus, setMemStatus ]= useState(false);
+
+const [memoffers, setMemOffers ]= useState<String[]>([]);
+
+
+
+useEffect(() => {
+  if (membership && isOpen) {
+    setDataid(membership.id || '');
+    setMemNombre(membership.name || '');
+    setMemPrice(String(membership.price || ''));
+    setMemDuracion(membership.duration || '');
+    setMemStatus(membership.status || true);
+    setMemOffers(membership.ofertas_membresia || []);
+  
+  }
+}, [membership, isOpen]);
+
+
+  const submitForm = async () => {
+    if (
+      memNombre &&
+      memprice &&
+      memduracion &&
+      memoffers ||
+      memstatus 
+    ) {
+   const form = {
+      name_membership: memNombre,
+      price_membership: parseFloat(memprice),
+      duration_membership: memduracion,
+      offers_membership: memoffers,
+   status_membership:memstatus
+          };
+    const response = await apiService.update(`/membership/update/${dataid}`,form)
+      console.log("response"+response)
+
+      if (response.id) {
+toast.success(`Membresia ${memNombre} fue editada correctamente`)
+        onMembership();
+    onClose();
+   // Cerrar modal
+      } else {
+
+       console.log(response)
+      }
+
+    }else{
+ 
+      console.log("error");
     }
-  }, [membership]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const membershipToUpdate = {
-      ...selectedMembership,
-      ofertas_membresia: selectedMembership.ofertas_membresia.filter((oferta: string) => oferta.trim() !== '')
-    };
-    onSubmit(membershipToUpdate);
   };
 
-  const handleEditInputChange = (field: string, value: string | string[]) => {
-    setSelectedMembership((prev: any) => ({
-      ...prev,
-      [field]: value
-    }));
-  };
 
-  const addEditOferta = () => {
-    setSelectedMembership((prev: any) => ({
-      ...prev,
-      ofertas_membresia: [...prev.ofertas_membresia, '']
-    }));
-  };
 
-  const updateEditOferta = (index: number, value: string) => {
-    const newOfertas = [...selectedMembership.ofertas_membresia];
+const removeEditOferta = (index: number) => {
+  setMemOffers((prev: String[]) => prev.filter((_, i) => i !== index));
+};
+
+
+
+  
+const addEditOferta = () => {
+  console.log(memoffers)
+  setMemOffers((prev: String[]) => [...prev, '']);
+};
+
+// Actualizar el texto de una oferta en un índice
+const updateEditOferta = (index: number, value: string) => {
+  setMemOffers((prev: String[]) => {
+    const newOfertas = [...prev];
     newOfertas[index] = value;
-    setSelectedMembership((prev: any) => ({
-      ...prev,
-      ofertas_membresia: newOfertas
-    }));
-  };
+    return newOfertas;
+  });
+};
 
-  const removeEditOferta = (index: number) => {
-    setSelectedMembership((prev: any) => ({
-      ...prev,
-      ofertas_membresia: prev.ofertas_membresia.filter((_: any, i: number) => i !== index)
-    }));
-  };
 
-  if (!isOpen || !selectedMembership) return null;
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
@@ -77,7 +115,7 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-4">
+          <form onSubmit={(e)=> {e.preventDefault(); submitForm()}} className="p-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Columna izquierda */}
             <div className="space-y-3">
@@ -92,8 +130,8 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ej: Membresía Premium"
-                  value={selectedMembership.name}
-                  onChange={(e) => handleEditInputChange('name', e.target.value)}
+                  value={memNombre}
+                  onChange={(e) =>setMemNombre(e.target.value)}
                 />
               </div>
 
@@ -108,8 +146,8 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ej: $1,199 MXN/mes"
-                  value={selectedMembership.price}
-                  onChange={(e) => handleEditInputChange('price', e.target.value)}
+                  value={memprice}
+                  onChange={(e) => setMemPrice(e.target.value)}
                 />
               </div>
 
@@ -122,11 +160,11 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
                   id="edit-duracion"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={selectedMembership.duracion_membresia}
-                  onChange={(e) => handleEditInputChange('duracion_membresia', e.target.value)}
+                  value={memduracion}
+                  onChange={(e) => setMemDuracion(e.target.value)}
                 >
-                  <option value="mensual">Mensual</option>
-                  <option value="anual">Anual</option>
+                  <option value="Mensual">Mensual</option>
+                  <option value="Anual">Anual</option>
                 </select>
               </div>
             </div>
@@ -139,19 +177,21 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
                   Ofertas de membresía
                 </label>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {selectedMembership.ofertas_membresia.map((oferta: string, index: number) => (
-                    <div key={index} className="flex space-x-2">
+                  {memoffers.map((offer:String, index) => (
+                    <div 
+                    key={index}
+                    className="flex space-x-2">
                       <input
                         type="text"
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Oferta"
-                        value={oferta}
-                        onChange={(e) => updateEditOferta(index, e.target.value)}
+                        value={offer.toString()}
+                        onChange={(e) => {updateEditOferta(index, e.target.value)}}
                       />
-                      {selectedMembership.ofertas_membresia.length > 1 && (
+                      {memoffers.length > 0 && (
                         <button
                           type="button"
-                          onClick={() => removeEditOferta(index)}
+                          onClick={() => {removeEditOferta(index)}}
                           className="px-3 py-2 text-red-600 hover:text-red-800"
                         >
                           ×
@@ -161,7 +201,7 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
                   ))}
                   <button
                     type="button"
-                    onClick={addEditOferta}
+                    onClick={()=>{addEditOferta()}}
                     className="text-blue-600 hover:text-blue-800 text-sm"
                   >
                     + Agregar oferta
@@ -175,13 +215,18 @@ export default function EditMembershipModal({ isOpen, onClose, onSubmit, members
           <div className="flex space-x-3 pt-4 border-t border-gray-200 mt-4 flex-shrink-0">
             <button
               type="button"
-              onClick={onClose}
+              
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </button>
             <button
+            
               type="submit"
+              onClick={(e)=>{
+                console.log("hola")
+                submitForm;
+              } }
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Actualizar Membresía

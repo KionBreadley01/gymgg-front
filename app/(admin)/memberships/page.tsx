@@ -1,110 +1,118 @@
 // app/pages/memberships/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import AddMembershipModal from '../dashboard/modal/AddMembershipModal';
 import EditMembershipModal from '../dashboard/modal/EditMembershipModal';
 import DeleteMembershipModal from '../dashboard/modal/DeleteMembershipModal';
+import { type } from 'os';
 
 export default function Memberships() {
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
+  
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const [plans, setPlans] = useState([
-    {
-      id: 1,
-      name: 'Membresía Básica',
-      price: '$499 MXN/mes',
-      duracion_membresia: 'mensual',
-      ofertas_membresia: [
-        'Acceso a área de cardio',
-        'Uso de máquinas básicas',
-        'Horario matutino (6am-2pm)',
-        'Asesoría inicial gratuita'
-      ],
-      status: 'Activa'
-    },
-    {
-      id: 2,
-      name: 'Membresía Plus',
-      price: '$799 MXN/mes',
-      duracion_membresia: 'mensual',
-      ofertas_membresia: [
-        'Acceso a todas las áreas',
-        'Uso ilimitado de máquinas',
-        'Horario extendido (6am-10pm)',
-        'Clases grupales incluidas',
-        '1 sesión de entrenador personal'
-      ],
-      status: 'Activa'
-    },
-    {
-      id: 3,
-      name: 'Membresía Premium',
-      price: '$1,199 MXN/mes',
-      duracion_membresia: 'anual',
-      ofertas_membresia: [
-        'Acceso 24/7',
-        'Uso de área VIP',
-        'Toalla y locker incluidos',
-        'Clases ilimitadas',
-        '4 sesiones de entrenador personal',
-        'Evaluación física mensual'
-      ],
-      status: 'Activa'
-    },
-  ]);
+  const [currentPage, setCurrentPage] = useState(1);
+    const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
 
-  const filteredPlans = plans.filter(plan =>
-    plan.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const [onlyMem, setOnlyMem] = useState([]);
+
+
+  useEffect(() => {
+    fetchMembersip();
+
+  }, []);
+
+
+ type Memberships = {
+  id: number,
+  name_membership: String,
+  price_membership:number
+  duration_membership: String
+  offers_membership:string[];
+  status_membership: boolean
+ }
+
+
+
+
+  const [member, setMember] = useState<Memberships[]>([])
+
+
+  const fetchMembersip= async () => {
+               const token = localStorage.getItem('access');
+
+
+    try{
+        fetch("http://127.0.0.1:8000/membership/",{
+
+              method: "GET",
+           headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+      }
+      })
+        .then(async (response) => {
+          console.log("Response: ", response.status) 
+          if(!response.ok){
+              const text = await response.text()
+              console.log("Contenido de error: ", text) 
+              throw new Error(`Error al obtener los datos ${response.status}`)
+          }
+          return response.json()
+          })
+            .then((data) => {
+              // console.log("Datos mostrados: ", data)
+              setMember(data)
+            })
+          .catch((error) => console.log("Error: ", error)) 
+
+    } catch (error){
+      console.log("Error: ", error);
+    }
+  }
+
+ 
+ const membership = member.map((m) => ({
+    id: m.id,
+    name: m.name_membership,  
+    price: m.price_membership,
+    duration:  m.duration_membership,
+    status:m.status_membership,
+    ofertas_membresia:m.offers_membership
+  }));
+
+    const filteredMemberships = membership.filter(memFilt =>
+    memFilt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    memFilt.price.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+    memFilt.duration.toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const productsPerPage = 5;
 
-  const handleAddMembership = (membership: any) => {
-    const newId = Math.max(...plans.map(p => p.id)) + 1;
-    const membershipToAdd = {
-      ...membership,
-      id: newId,
-      status: 'Activa'
-    };
-    setPlans([...plans, membershipToAdd]);
-    alert('Membresía agregada exitosamente');
-    setShowAddModal(false);
+    const totalPages = Math.ceil(filteredMemberships.length / productsPerPage);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredMemberships.slice(indexOfFirstProduct, indexOfLastProduct);
+
+   const handleProductClickGet = (GetMem: any) => {
+  setOnlyMem(GetMem)
+    console.log(GetMem)
+  return onlyMem
   };
 
-  const handleEditMembership = (membership: any) => {
-    const updatedPlans = plans.map(plan => 
-      plan.id === selectedMembership.id 
-        ? { ...membership, id: selectedMembership.id, status: selectedMembership.status }
-        : plan
-    );
-    setPlans(updatedPlans);
-    alert('Membresía actualizada exitosamente');
-    setShowEditModal(false);
-    setSelectedMembership(null);
-  };
 
-  const handleDeleteMembership = () => {
-    const updatedPlans = plans.filter(plan => plan.id !== selectedMembership.id);
-    setPlans(updatedPlans);
-    alert('Membresía eliminada exitosamente');
-    setShowDeleteModal(false);
-    setSelectedMembership(null);
-  };
 
-  const openEditModal = (membership: any) => {
-    setSelectedMembership(membership);
-    setShowEditModal(true);
-  };
+const hasMemberships = currentProducts.length > 0;
+console.log(hasMemberships)
 
-  const openDeleteModal = (membership: any) => {
-    setSelectedMembership(membership);
-    setShowDeleteModal(true);
-  };
-
+  
   return (
     <div className="p-6">
       <div className="max-w-7xl mx-auto">
@@ -134,7 +142,7 @@ export default function Memberships() {
             {/* Botón agregar membresía */}
             <button 
               onClick={() => setShowAddModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
+              className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium flex items-center space-x-2"
             >
               <Plus className="h-5 w-5" />
               <span>Agregar Membresía</span>
@@ -142,9 +150,17 @@ export default function Memberships() {
           </div>
         </div>
 
+
+
         {/* Tabla de membresías */}
+
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
+            {member.length===0? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Membresias!</div>
+            ): (
+
+          
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -169,7 +185,7 @@ export default function Memberships() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredPlans.map((plan) => (
+                {currentProducts.map((plan) => (
                   <tr key={plan.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -181,20 +197,20 @@ export default function Memberships() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        plan.duracion_membresia === 'mensual' 
+                        plan.duration=="mensual"
                           ? 'bg-blue-100 text-blue-800' 
                           : 'bg-purple-100 text-purple-800'
                       }`}>
-                        {plan.duracion_membresia === 'mensual' ? 'Mensual' : 'Anual'}
+                        {plan.duration === 'Mensual' ? 'Mensual' : 'Anual'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900">
                         <ul className="list-disc list-inside space-y-1">
-                          {plan.ofertas_membresia.slice(0, 3).map((oferta, i) => (
-                            <li key={i} className="text-gray-600">{oferta}</li>
-                          ))}
-                          {plan.ofertas_membresia.length > 3 && (
+                          {plan.ofertas_membresia.slice(0, 3).map((oferta, i) => ( 
+                             <li key={i} className="text-gray-600">{oferta}</li> 
+                           ))}
+                           {plan.ofertas_membresia.length > 3 && (
                             <li className="text-blue-600">+{plan.ofertas_membresia.length - 3} más</li>
                           )}
                         </ul>
@@ -202,19 +218,27 @@ export default function Memberships() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        {plan.status}
+                        {plan.status ===false ? 'No activo':"Activo"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button 
-                          onClick={() => openEditModal(plan)}
+                          onClick={() =>{ 
+                            console.log("antes de mantar"+plan.ofertas_membresia)
+                            console.log("antes de mantar"+typeof(plan.ofertas_membresia))
+                            handleProductClickGet(plan)
+                            setShowEditModal(true)
+                            }}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded"
                         >
                           <Edit className="h-4 w-4" />
+
                         </button>
                         <button 
-                          onClick={() => openDeleteModal(plan)}
+                          onClick={(e) => {
+                              handleProductClickGet(plan)
+                             setShowDeleteModal(true)}}
                           className="text-red-600 hover:text-red-900 p-1 rounded"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -225,28 +249,30 @@ export default function Memberships() {
                 ))}
               </tbody>
             </table>
+              )}
           </div>
         </div>
 
         {/* Modales */}
-        <AddMembershipModal
+         <AddMembershipModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
-          onSubmit={handleAddMembership}
+          onMembership={fetchMembersip}
         />
 
         <EditMembershipModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onSubmit={handleEditMembership}
-          membership={selectedMembership}
+          onMembership={fetchMembersip}
+          membership={onlyMem}
         />
+
 
         <DeleteMembershipModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDeleteMembership}
-          membership={selectedMembership}
+          onConfirm={fetchMembersip}
+          membership={onlyMem}
         />
       </div>
     </div>

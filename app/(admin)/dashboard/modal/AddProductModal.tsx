@@ -4,16 +4,24 @@ import apiService from "@/app/Service/apiService";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
+import AddCategoryModal from "./AddCategoryModal";
+
+
 
 const AddProductModal =({
   show,
   onClose,
-  onProductAdded, // ← aquí la estás recibiendo como prop
+  onProductAdded, 
 }: {
   show: boolean;
   onClose: () => void;
-  onProductAdded: () => void; // ← asegúrate de declararla aquí también
+  onProductAdded: () => void;
 }) => {
+
+
+
+  
   const [dataTitle, setDataTitle] = useState('');
   const [dataPrice, setDataPrice] = useState('');
   const [dataStock, setDataStock] = useState('');
@@ -21,6 +29,7 @@ const AddProductModal =({
   const [dataCategory, setDataCategory] = useState('');
   const [Category, setCategory] = useState<{id:string; name_category:string}[]>([]);
 
+const [showCategoryModal, setShowCategoryModal] = useState(false);
 
 
 useEffect(() => {
@@ -62,16 +71,25 @@ const resetForm = () => {
 
 
       if (response && response.id) {
-        console.log('Producto agregado correctamente');
+                toast.success('Producto Añadido correctamente');
+        
        onProductAdded();
        resetForm();
         onClose(); // Cerrar modal
       } else {
-      
-        console.log('llego aqui?',response);
+                      toast.error('ocurrio un error');
+
+        console.warn('llego aqui?',response);
       }
+    } else{
+      toast.error("ocurrio un error")
     }
   };
+
+  const handleCategoryAdded = (newCategory: { id: string; name_category: string }) => {
+  setCategory(newPrev => [...newPrev, newCategory]);
+  setDataCategory(newCategory.name_category); 
+  }
 
   if (!show) return null;
 
@@ -105,10 +123,11 @@ const resetForm = () => {
            value={dataCategory}
            onChange={(e)=> setDataCategory(e.target.value)}
            /> */}
-           
+           <div className="flex items-center space-x-2">
+      
             <select
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={dataCategory}
               onChange={(e) => setDataCategory(e.target.value)}
             >
@@ -119,8 +138,19 @@ const resetForm = () => {
               ))
             
               }
+              
           
             </select>
+              <button
+      type="button"
+      onClick={() =>{setShowCategoryModal(true);console.log("si abri")} } // Reemplaza esta acción con lo que necesites
+      className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center"
+      title="Agregar nueva categoría"
+    >
+      +
+    </button>
+          
+           </div>
           </div>
 
           <div className="flex space-x-3">
@@ -165,6 +195,8 @@ const resetForm = () => {
             />
           </div>
 
+          
+
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
@@ -183,7 +215,15 @@ const resetForm = () => {
           </div>
         </form>
       </div>
+      <AddCategoryModal
+  show={showCategoryModal}
+  onClose={() => setShowCategoryModal(false)}
+  onProductAdded={handleCategoryAdded}
+
+/>
     </div>
+
+    
   );
 };
 

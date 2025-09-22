@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { LogOut, X } from 'lucide-react';
 import Link from 'next/link';
+import apiService from '../Service/apiService';
 
 const Header_admin = () => {
   // Estado para controlar la visibilidad del diálogo de confirmación de cierre de sesión.
@@ -18,15 +19,34 @@ const Header_admin = () => {
 
   // Muestra el diálogo de confirmación.
   const handleLogout = () => {
+
     setShowConfirmation(true);
   };
 
   // Redirige al usuario a la página de bienvenida y oculta el diálogo.
-  const confirmLogout = () => {
-    router.push('/welcome');
-    setShowConfirmation(false);
-  };
+const confirmLogout = async () => {
+  try {
+// cargar token guardada en local
+    const refreshToken = localStorage.getItem("refresh");
 
+    console.log(refreshToken)
+    if (refreshToken) {
+      await apiService.post("/api/auth/logout/", {refresh: refreshToken,});
+    }
+
+    // Limpiar tokens del almacenamiento local
+
+   
+    router.push("/welcome");
+    setShowConfirmation(false);
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+
+
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+};
   // Simplemente oculta el diálogo de confirmación.
   const cancelLogout = () => {
     setShowConfirmation(false);
@@ -34,7 +54,7 @@ const Header_admin = () => {
 
   // Función para determinar si un enlace está activo
   const isActiveLink = (href: string) => {
-    if (href === '/dashboard') {
+    if (href === '/welcome') {
       return pathname === '/dashboard';
     }
     return pathname.startsWith(href);
