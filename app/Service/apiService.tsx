@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST;
 
 async function fetchWithAuth(url: string, options: any) {
@@ -14,6 +16,7 @@ async function fetchWithAuth(url: string, options: any) {
     // Si el token expiró, intenta refrescar
     if (response.status === 401 && localStorage.getItem("refresh")) {
         console.warn("Access token expirado, intentando refrescar...");
+    
 
         const refresh = localStorage.getItem("refresh");
         const refreshResp = await fetch(`${API_HOST}/api/token/refresh/`, {

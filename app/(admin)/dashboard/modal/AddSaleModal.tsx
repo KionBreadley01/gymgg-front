@@ -49,9 +49,10 @@ const AddSaleModal = ({
 
     // Cargar productos al abrir el modal
     // Datos de productos
-    const token = localStorage.getItem('access');
 
     useEffect(() => {
+            const token = localStorage.getItem('access');
+
         fetch('http://localhost:8000/products/',{
       method: "GET",
       headers: {
@@ -67,6 +68,8 @@ const AddSaleModal = ({
 
     // Datos
     useEffect(() => {
+            const token = localStorage.getItem('access');
+
         fetch('http://localhost:8000/useraccount/',{
       method: "GET",
       headers: {
@@ -133,6 +136,7 @@ const AddSaleModal = ({
               if (response && response.id) {
         console.log('venta realizada correctamente');
       setSaleproduct([]);
+      onSaleAdded()
         setSelectedUserId("");
         onClose(); // Cerrar modal
       } else {

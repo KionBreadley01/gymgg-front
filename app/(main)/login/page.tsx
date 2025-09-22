@@ -34,13 +34,13 @@ export default function Login() {
 toast.success("Bienvenido "+email);
         router.push('/dashboard');
       } else{
-   
+   toast.dismiss()
       toast.error("Error de credenciales");
 
     }
   } catch (err){
       console.error(err);
-      alert("Error al iniciar sesión");
+            toast.error("Error de credenciales");
      
   }
   

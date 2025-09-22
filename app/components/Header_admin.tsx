@@ -35,12 +35,13 @@ const confirmLogout = async () => {
     }
 
     // Limpiar tokens del almacenamiento local
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
 
    
     router.push("/welcome");
     setShowConfirmation(false);
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+
 
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
@@ -53,7 +54,7 @@ const confirmLogout = async () => {
 
   // Función para determinar si un enlace está activo
   const isActiveLink = (href: string) => {
-    if (href === '/dashboard') {
+    if (href === '/welcome') {
       return pathname === '/dashboard';
     }
     return pathname.startsWith(href);

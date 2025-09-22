@@ -4,6 +4,7 @@ import apiService from "@/app/Service/apiService";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const AddUserModal = ({
     show,
@@ -64,21 +65,21 @@ const AddUserModal = ({
                 date_pay: dataDatePay,
                 password: dataPassword,
             };
-
             const response = await apiService.post("/useraccount/create", form);
 
             if (response && response.id) {
-                                resetForm();
-
-                console.log("Usuario agregado correctamente");
+                resetForm();
+                toast.success("Usuario agregado correctamente");
                 onUserAdded();
                 onClose(); // Cerrar modal
             } else {
+                toast.error("Ocurrio un error correctamente");
                 console.log("llego aqui?", response);
                 onUserAdded();
-                resetForm();
-                onClose();
             }
+        } else{
+            toast.error("Ocurrio un error correctamente");
+
         }
     };
 
@@ -99,7 +100,7 @@ const AddUserModal = ({
                         <label className="block text-sm font-medium text-gray-700 mb-2">Nombre de Usuario</label>
                         <input
                             type="text"
-                            name="name"
+                     
                             value={dataName}
                             onChange={(e) => setDataName(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -129,7 +130,7 @@ const AddUserModal = ({
                             value={dataPassword}
                             onChange={(e) => setDataPassword(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Correo de Usuario"
+                            placeholder="Contraseña del usuario"
                             required
                         />-
                     </div>

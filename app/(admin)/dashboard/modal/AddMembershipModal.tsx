@@ -53,22 +53,22 @@ const submitForm = async () => {
       console.log("response", response);
   
       if (response?.id) {
-     toast.success("Membresia modificada Correctamete");
+     toast.success("Membresia agregada");
         onMembership();
         resetForm();
         onClose();
       } else {
-        console.log('Respuesta sin ID', response);
+        toast.dismiss()
+      toast.error("Error al crear membresía");
       }
+
     } catch (error) {
-      console.error("Error al crear membresía:", error);
+      toast.error("Error al crear membresía sii");
     }
     
-  } else {
-    console.log(memduracion)
-
-    console.warn("Formulario incompleto");
   }
+   
+
 };
 
 
