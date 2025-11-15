@@ -65,7 +65,7 @@ const AddUserModal = ({
                 date_pay: dataDatePay,
                 password: dataPassword,
             };
-            const response = await apiService.post("/useraccount/create", form);
+            const response = await apiService.post("/useraccount/createRecep", form);
 
             if (response && response.id) {
                 resetForm();
