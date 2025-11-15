@@ -5,6 +5,7 @@ import { data, div, image, p } from 'framer-motion/client';
 import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import AddProductModal from '../modal/productModal/AddProductModal';
 
 
 
@@ -357,7 +358,11 @@ export default function Products() {
         {/* Modal para agregar usuario */}
       
      
-   
+   <AddProductModal
+   show={showAddForm}
+   onClose={()=> setShowAddForm(false)}
+   onProductAdded={fetchProducts}
+   />
       </div>
     </div>
   );

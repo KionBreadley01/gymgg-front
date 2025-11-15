@@ -20,12 +20,12 @@ export default function AdminDashboard2() {
               icon: <Users className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Gestión de usuarios'
             },
-               {
-              href: '/dashboard2/productsRece',
-              title: 'Productos',
-              icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
-              description: 'Administración de productos'
-            },
+            {
+           href: '/dashboard2/productsRece',
+           title: 'Productos',
+           icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
+           description: 'Administración de productos'
+         },
       
               {
               href: '/dashboard/sales',

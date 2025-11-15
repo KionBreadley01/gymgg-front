@@ -25,19 +25,24 @@ export default function Login() {
 
   try {
     const respuesta = await apiService.post("/useraccount/login/",{email,password});
-   console.log(respuesta.access)
+
     if(respuesta.access && respuesta.refresh){
         localStorage.setItem("access", respuesta.access);
         localStorage.setItem("refresh", respuesta.refresh);
         localStorage.setItem("user", JSON.stringify("usuario"));
+        console.log(respuesta)
 
         if(respuesta.is_superuser && respuesta.is_staff){
+          console.log("entro aqui admin")
           toast.success("Bienvenido "+email);
           router.push('/dashboard');
-          
-        } else if(!respuesta.is_superuser && respuesta.is_staff)
-        toast.success("Bienvenido "+email);
-        router.push('/dashboard2');
+         }
+       
+          if(respuesta.is_superuser==false && respuesta.is_staff){
+          console.log("entro aqui admin")
+          toast.success("Bienvenido "+email);
+          router.push('/dashboard2');
+         }
 
       } else{
    toast.dismiss()
