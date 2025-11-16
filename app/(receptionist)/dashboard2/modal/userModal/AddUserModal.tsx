@@ -25,7 +25,7 @@ const AddUserModal = ({
     >([]);
 
     useEffect(() => {
-        const token = localStorage.getItem('access');
+                       const token = localStorage.getItem('access');
 
         fetch("http://localhost:8000/membership",{
 
@@ -53,17 +53,19 @@ const AddUserModal = ({
         if (
             dataName &&
             dataEmail &&
-   
+            dataMembership &&
+            dataDatePay &&
             dataPassword
         
         ) {
             const form = {
                 name: dataName,
                 email: dataEmail,
-               
+                membership_id: dataMembership,
+                date_pay: dataDatePay,
                 password: dataPassword,
             };
-            const response = await apiService.post("/useraccount/create", form);
+            const response = await apiService.post("/useraccount/createRecep", form);
 
             if (response && response.id) {
                 resetForm();
@@ -71,12 +73,12 @@ const AddUserModal = ({
                 onUserAdded();
                 onClose(); // Cerrar modal
             } else {
-                toast.error("Ocurrio un error");
+                toast.error("Ocurrio un error correctamente");
                 console.log("llego aqui?", response);
                 onUserAdded();
             }
         } else{
-            toast.error("Ocurrio un error ");
+            toast.error("Ocurrio un error correctamente");
 
         }
     };
@@ -93,7 +95,7 @@ const AddUserModal = ({
                     </button>
                 </div>
 
-                <form onSubmit={(e) => { console.log("no cerro");e.preventDefault(); submitForm(); }} className="p-6 space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); submitForm(); }} className="p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Nombre de Usuario</label>
                         <input
@@ -133,7 +135,7 @@ const AddUserModal = ({
                         />-
                     </div>
 
-                    {/* <div>
+                    <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Membresia</label>
                         <select
                             required
@@ -148,9 +150,19 @@ const AddUserModal = ({
                                 </option>
                             ))}
                         </select>
-                     
-                    </div> */}
-{/* 
+                        {/* <select
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            value={dataMembership}
+                            onChange={(e) => setDataMembership(e.target.value)}
+                        >
+                            <option value="">Selecciona</option>
+                            {Membership.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name_membership} - {cat.membership_duration} Meses</option>
+                            ))}
+                        </select> */}
+                    </div>
+
                     <div className="flex space-x-3">
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Pago</label>
@@ -165,7 +177,7 @@ const AddUserModal = ({
                                 }}
                             />
                         </div>
-                    </div> */}
+                    </div>
 
                     <div className="flex space-x-3 pt-4">
                         <button
