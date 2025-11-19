@@ -54,8 +54,9 @@ const confirmLogout = async () => {
 
   // Función para determinar si un enlace está activo
   const isActiveLink = (href: string) => {
-    if (href === '/welcome') {
-      return pathname === '/dashboard';
+    const segments = href.split('/').filter(Boolean).length;
+    if (segments <= 1) {
+      return pathname === href;
     }
     return pathname.startsWith(href);
   };
@@ -65,8 +66,8 @@ const confirmLogout = async () => {
       <header className="sticky top-0 z-50 bg-gray-900 text-white shadow-md">
         <div className="container mx-auto px-4 py-4">
           {/* Logo, Title and Navigation in one row */}
-          <div className="flex items-center justify-between w-full">
-            <Link href="/dashboard" className="flex items-center">
+          <div className="grid grid-cols-3 items-center w-full">
+            <Link href="/dashboard2" className="flex items-center">
               <img 
                 src="/Logo.png" 
                 alt="Logo GymGG" 
@@ -78,7 +79,7 @@ const confirmLogout = async () => {
             </Link>
             
             {/* Navigation Links */}
-            <nav className="flex items-center space-x-6">
+            <nav className="flex items-center justify-center space-x-6">
               <Link 
                 href="/dashboard2" 
                 className={`transition-colors ${
@@ -112,7 +113,7 @@ const confirmLogout = async () => {
               <Link 
                 href="/dashboard2/membershipsRecep" 
                 className={`transition-colors ${
-                  isActiveLink('dashboard2/membershipsRecep') 
+                  isActiveLink('/dashboard2/membershipsRecep') 
                     ? 'text-yellow-400 border-b-2 border-yellow-400' 
                     : 'hover:text-yellow-400'
                 }`
@@ -123,7 +124,7 @@ const confirmLogout = async () => {
               <Link 
                 href="/dashboard2/salesRecep" 
                 className={`transition-colors ${
-                  isActiveLink('/dashboard/sales') 
+                  isActiveLink('/dashboard2/salesRecep') 
                     ? 'text-yellow-400 border-b-2 border-yellow-400' 
                     : 'hover:text-yellow-400'
                 }`}
@@ -135,7 +136,7 @@ const confirmLogout = async () => {
             {/* Logout Button */}
             <button 
               onClick={handleLogout} 
-              className="flex items-center space-x-2 hover:text-red-400 transition-colors"
+              className="flex items-center space-x-2 hover:text-red-400 transition-colors justify-self-end"
             >
               <LogOut className="h-6 w-6" />
               <span></span>
@@ -190,4 +191,4 @@ const confirmLogout = async () => {
   );
 };
 
-export default Header_recep; 
+export default Header_recep;

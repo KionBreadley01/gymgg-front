@@ -16,6 +16,15 @@ export default function InformativeSection() {
   const [membership, setMembership] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
 
+  type Product = {
+    id: number,
+    name_product: string,
+    price_product: number,
+    description?: string
+  }
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
   useEffect(() => {
     fetch("http://127.0.0.1:8000/membership/")
       .then(async (response) => {
@@ -32,6 +41,22 @@ export default function InformativeSection() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/products/")
+      .then(async (response) => {
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`Error al obtener los datos ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProducts(data);
+      })
+      .catch((error) => console.log("Error: ", error))
+      .finally(() => setLoadingProducts(false));
+  }, []);
+
   const plans = membership.map((m) => ({
     name: m.name_membership,
     price: `$${m.price_membership}`,
@@ -45,25 +70,25 @@ export default function InformativeSection() {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-yellow-100 via-gray-100 to-yellow-300 flex flex-col items-center py-10">
-      <div className="w-full max-w-7xl px-4">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-100 via-gray-100 to-yellow-300 flex flex-col items-center py-12 md:py-16">
+      <div className="w-full max-w-7xl px-4 space-y-24">
 
         {/* Hero profesional */}
-        <section className="flex flex-col md:flex-row items-center justify-between gap-16 py-14">
-          <div className="md:w-1/2 flex flex-col gap-8">
+        <section className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 md:gap-16 py-16">
+          <div className="flex flex-col gap-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-8">
             <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">GYMSGG</span>
+              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">GYM´s GG</span>
             </h1>
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Gestión profesional para tu gimnasio</h2>
             <p className="text-lg text-gray-600 mb-6">
               Lleva tu gimnasio al siguiente nivel con nuestra plataforma integral. Controla membresías, pagos y asistencia con una experiencia moderna y eficiente.
             </p>
-            <Link href="/register" className="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-200">
+            <Link href="/register" className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-200 ring-1 ring-yellow-300">
               Comienza ahora
             </Link>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative">
+          <div className="flex justify-center">
+            <div className="relative bg-white/60 p-3 rounded-3xl ring-1 ring-yellow-300 shadow-xl">
               <Image
                 src="/assets/images/image2.png"
                 alt="Sistema de gestión de gimnasios"
@@ -105,6 +130,32 @@ export default function InformativeSection() {
           </div>
         </section>
 
+        {/* Catálogo de Productos */}
+        <section className="my-20">
+          <h2 className="text-4xl font-extrabold text-center text-yellow-500 mb-12">Catálogo de Productos</h2>
+          {loadingProducts ? (
+            <div className="text-center text-gray-400 py-12 text-lg animate-pulse">Cargando productos...</div>
+          ) : products.length === 0 ? (
+            <div className="text-center text-gray-700 mb-8 py-12 text-lg">No hay productos disponibles por el momento.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {products.slice(0, 6).map((p) => (
+                <div key={p.id} className="bg-white border-2 border-yellow-400 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:scale-105 hover:shadow-2xl transition-all duration-300">
+                  <div>
+                    <div className="w-full h-32 bg-yellow-50 rounded-xl mb-4 flex items-center justify-center">
+                      <Image src="/assets/images/products/creatine.jpeg" alt={p.name_product} width={120} height={120} className="object-cover rounded-lg" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 text-gray-900">{p.name_product}</h3>
+                    <p className="text-2xl font-extrabold mb-3 text-yellow-500">${p.price_product}</p>
+                    {p.description && (<p className="text-gray-600 text-sm">{p.description}</p>)}
+                  </div>
+                  <Link href="/register" className="mt-auto w-full bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md text-center">Ver más</Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Membresías */}
         <section className="my-20">
           <h2 className="text-4xl font-extrabold text-center text-yellow-500 mb-12">Nuestras Membresías</h2>
@@ -121,7 +172,7 @@ export default function InformativeSection() {
               {plans.map((plan, index) => (
                 <div
                   key={index}
-                  className="bg-white border-2 border-yellow-400 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:scale-105 hover:shadow-2xl transition-all duration-300"
+                  className="bg-white/80 rounded-2xl shadow-xl p-8 flex flex-col justify-between ring-1 ring-yellow-300 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1 backdrop-blur-sm"
                 >
                   <div>
                     <h3 className="text-2xl font-bold mb-3 text-yellow-500">{plan.name}</h3>
