@@ -180,7 +180,7 @@ const AddUserModal = ({
                             type="submit"
                             className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
                         >
-                            Agregar Producto
+                            Agregar Usuario
                         </button>
                     </div>
                 </form>
