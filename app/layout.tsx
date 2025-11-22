@@ -10,10 +10,12 @@ import Footer from './components/Footer'
 // import SignUp from './signup/page'
 import Login from './(main)/login/page'
 
+import ServiceWorkerRegister from './components/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
   title: 'GymGG',
   description: 'Sistema de gestión de gimnasio',
+  manifest: '/manifest.json'
 }
 
 export default function RootLayout({
@@ -25,6 +27,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
           {/* <Header /> */}
+          <ServiceWorkerRegister />
           {children}
           <ToastContainer/>
           <Footer />
