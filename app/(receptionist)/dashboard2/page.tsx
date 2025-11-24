@@ -15,7 +15,7 @@ export default function AdminDashboard2() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              href: '/dashboard/users',
+              href: '/dashboard2/usersRecep',
               title: 'Usuarios',
               icon: <Users className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Gestión de usuarios'
