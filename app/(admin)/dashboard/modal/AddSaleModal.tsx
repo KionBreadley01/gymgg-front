@@ -152,7 +152,7 @@ const AddSaleModal = ({
         <div className="fixed inset-0 flex justify-center product-center z-50 bg-black/60 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
                 <div className="flex justify-between product-center p-6 border-b">
-                    <h3 className="text-lg font-bold">Registrar Nueva Venta</h3>
+                    <h3 className="text-lg font-bold text-black">Registrar Nueva Venta</h3>
                     <button onClick={onClose}>
                         <X className="w-5 h-5" />
                     </button>
@@ -163,7 +163,7 @@ const AddSaleModal = ({
                     <select
                         value={selectedUserId}
                         onChange={(e) => setSelectedUserId(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black"
                     >
                         <option value="">Selecciona</option>
                         {users.map(u => (
@@ -177,7 +177,7 @@ const AddSaleModal = ({
                         <select
                             value={selectedProductId}
                             onChange={(e) => setSelectedProductId(e.target.value)}
-                            className="flex-1 border px-3 py-2 rounded-lg"
+                            className="flex-1 border px-3 py-2 rounded-lg text-black"
                         >
                             <option value="">Selecciona producto</option>
                             {products.map((p) => (
@@ -192,7 +192,7 @@ const AddSaleModal = ({
                         <input
                             type="number"
                             min={1}
-                            className="w-24 border px-3 py-2 rounded-lg"
+                            className="w-24 border px-3 py-2 rounded-lg text-black"
                             value={quantity}
                             onChange={(e) => setQuantity(parseInt(e.target.value))}
                         />

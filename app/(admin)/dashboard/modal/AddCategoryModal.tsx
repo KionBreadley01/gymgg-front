@@ -53,13 +53,13 @@ const AddCategoryModal = ({ show, onClose,onProductAdded  }: AddCategoryModalPro
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Agregar Categoría</h2>
+        <h2 className="text-lg font-semibold text-black mb-4">Agregar Categoría</h2>
 
         <input
           type="text"
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
           placeholder="Nombre de la categoría"
           required
         />

@@ -104,7 +104,7 @@ const updateEditOferta = (index: number, value: string) => {
     <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Agregar Nueva Membresía</h3>
+          <h3 className="text-lg font-semibold text-black">Agregar Nueva Membresía</h3>
           <button 
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -123,7 +123,7 @@ const updateEditOferta = (index: number, value: string) => {
               type="text"
               id="name"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Ej: Membresía Premium"
               value={memNombre}
               onChange={(e) => setMemNombre(e.target.value)}
@@ -139,7 +139,7 @@ const updateEditOferta = (index: number, value: string) => {
               type="text"
               id="price"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Ej: $1,199 MXN/mes"
               value={memprice}
               onChange={(e) => setMemPrice( e.target.value)}
@@ -154,7 +154,7 @@ const updateEditOferta = (index: number, value: string) => {
             <select
               id="duracion"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={memduracion}
               onChange={(e) => setMemDuracion( e.target.value)}
             >                  <option value="">Selecionar</option>
@@ -174,7 +174,7 @@ const updateEditOferta = (index: number, value: string) => {
                 <div key={index} className="flex space-x-2">
                   <input
                     type="text"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Oferta"
                     value={oferta.toString()}
                     onChange={(e) => updateEditOferta(index, e.target.value)}
