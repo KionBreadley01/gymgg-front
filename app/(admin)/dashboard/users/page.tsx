@@ -599,7 +599,7 @@ console.log(currentUsers.length)
           </div>
           
         )}
-               {/* <EditUsertModal
+               <EditUsertModal
             show={showAddForm2}
             onClose={() => setShowAddForm2(false)}
             onUserEdited= {fetchUsers}
@@ -611,7 +611,7 @@ console.log(currentUsers.length)
         onClose={()=> SetremoveUser(false)}
         onUserEdited={fetchUsers}
         userSelected={onlyUser}
-        /> */}
+        />
       </div>
     </div>
   );

@@ -22,34 +22,24 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
 
   const [dataid, setDataid] = useState('');
 
-  const [Membership, setMembership] = useState<
+  const [Memberships, setMembership] = useState<
         {id:string; name_membership:string; duration_membership:string}[]
     >([]);
 
 
-    useEffect(() => {
-            const token = localStorage.getItem('access');
-
-        fetch("http://localhost:8000/membership",{
-
-              method: "GET",
-           headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
-      }
-      }) // ajusta la URL según tu backend
+       useEffect(() => {
+        fetch("http://localhost:8000/membership") // ajusta la URL según tu backend
             .then((res) => res.json())
-            .then((data) => setMembership(data))
+            .then((data) => {console.log("data", data); setMembership(data)})
             .catch((err) => console.error("Error cargando categorías", err));
     }, []);
+
 
 
 
     useEffect(() => {
       if (userSelected && show) {
         setDataid(userSelected.id || '')
-        setMembership(userSelected.membership.name_membership|| "")
       }
     }, [userSelected, show]);
 
@@ -68,7 +58,8 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
       }  
     }
     
-
+    console.log("asignado", typeof(userSelected.membership))
+const membresia =Memberships.find(m=> m.id === String(userSelected.membership))
     if (!show || !userSelected) return null;
     
  
@@ -99,6 +90,9 @@ export default  function DeleteUserModal ({show, onClose, onUserEdited, userSele
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
                 <p className="text-sm text-gray-700">
               <strong>Usuario a eliminar:</strong> {userSelected.name} 
+            </p>
+                <p className="text-sm text-gray-700">
+              <strong>Con membresia :</strong> {membresia?.name_membership} 
             </p>
 
       
