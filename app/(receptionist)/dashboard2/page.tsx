@@ -28,7 +28,7 @@ export default function AdminDashboard2() {
          },
       
               {
-              href: '/dashboard/sales',
+              href: '/dashboard2/salesRecep',
               title: 'Ventas',
               icon: <ShoppingBag className="h-10 w-10 text-yellow-600 mr-4" />,
               description: 'Control de ventas'
