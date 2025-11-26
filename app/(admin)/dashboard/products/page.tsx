@@ -45,7 +45,8 @@ export default function Products() {
     price_product: number,
     description: string,
     stock: number,
-    category: string
+    category: string,
+    image_url?: string | null
   }
 
   const [product, setProdct] = useState<Products[]>([])
@@ -91,7 +92,7 @@ export default function Products() {
     description: m.description,
     stock: m.stock,
     category: m.category,
-    image: '/assets/images/products/creatine.jpeg'
+    image: m.image_url || '/assets/images/products/creatine.jpeg'
   }));
 
   // Filtra la lista de productos basándose en el término de búsqueda.
@@ -248,8 +249,8 @@ export default function Products() {
                     </div>
                     <div className="flex items-center sm:col-span-2 lg:col-span-1">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock > 50 ? 'bg-green-100 text-green-800' :
-                          product.stock > 20 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                        product.stock > 20 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
                         }`}>
                         {product.stock > 50 ? 'En Stock' :
                           product.stock > 20 ? 'Stock Medio' :
@@ -297,8 +298,8 @@ export default function Products() {
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
                     }`}
                 >
                   <ChevronLeft className="h-4 w-4 mr-1" />
@@ -311,8 +312,8 @@ export default function Products() {
                       key={page}
                       onClick={() => handlePageChange(page)}
                       className={`px-2 sm:px-3 py-2 rounded-lg transition text-sm transform hover:scale-105 ${currentPage === page
-                          ? 'bg-yellow-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-yellow-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                     >
                       {page}
@@ -323,8 +324,8 @@ export default function Products() {
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || totalPages === 0}
                   className={`flex items-center px-2 sm:px-3 py-2 rounded-lg transition text-sm ${currentPage === totalPages || totalPages === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-yellow-600 text-white hover:bg-yellow-700 transform hover:scale-105'
                     }`}
                 >
                   <span className="hidden sm:inline">Siguiente</span>
