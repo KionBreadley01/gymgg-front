@@ -86,19 +86,13 @@ useEffect(() => {
     fetchUsers();
   }, []);
 
-    type Membership = {
-    id: string;
-    name_membership: string;
-    price_membership: number;
-    offers_membership: number;
-    membership_duration: number;
-  };
+   
 
   type User = {
     id: number,
     email: string,
     name: string,
-    membership: Membership,
+    membership: string| null,
     is_active: Boolean,
     date_pay: Date,
     date_expiration: Date,
@@ -140,6 +134,22 @@ useEffect(() => {
   }
 
 
+   const [Memberships, setMembership] = useState<
+        {id:string; name_membership:string; duration_membership:string}[]
+    >([]);
+
+
+       useEffect(() => {
+        fetch("http://localhost:8000/membership") // ajusta la URL según tu backend
+            .then((res) => res.json())
+            .then((data) => {console.log("data", data); setMembership(data)})
+            .catch((err) => console.error("Error cargando categorías", err));
+    }, []);
+
+
+
+
+
 
   // Se guardan los datos obtenidos de la base de datos
   const users = user.map((m) => ({
@@ -162,6 +172,7 @@ useEffect(() => {
   }
 
 
+  
   // Funciones utilitarias
   const getStatusColor = (status: string): string => {
     const colors = {
@@ -184,7 +195,7 @@ useEffect(() => {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMembership = filterMembership === 'all' || user.membership.id === filterMembership;
+    const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
     return matchesSearch && matchesMembership;
   });
 
@@ -240,6 +251,14 @@ useEffect(() => {
   setOnlyUser(GetUser)
     return onlyUser
   };
+
+const getMembershipName = (id: string | null) => {
+  if (!id) return "Sin membresía";
+
+  const found = Memberships.find((m) => String(m.id) === String(id));
+  return found ? found.name_membership : "No encontrada";
+};
+
 
 console.log(currentUsers.length)
   return (
@@ -337,8 +356,8 @@ console.log(currentUsers.length)
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership?.name_membership || "Sin membresías")}`}>
-                            {user?.membership?.name_membership || "Sin membresías"}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership || "Sin membresías")}`}>
+                            {getMembershipName(user?.membership) || "Sin membresías"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -432,11 +451,12 @@ console.log(currentUsers.length)
                 </div>
 
                 {/* Detalles de membresía */}
+                
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Membresía:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(selectedUserData?.membership?.id)}`}>
-                      {selectedUserData?.membership?.name_membership}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${(selectedUserData?.membership)}`}>
+                      {getMembershipName(selectedUserData?.membership)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -488,116 +508,12 @@ console.log(currentUsers.length)
         </div>
 
         {/* Modal para agregar usuario */}
-        {showAddForm && (
-          <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Usuario</h3>
-                <button 
-                  onClick={() => setShowAddForm(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
 
-              <div className="p-6 space-y-4">
-                {/* Nombre */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre completo
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ingresa el nombre completo"
-                    value={newUser.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="ejemplo@email.com"
-                    value={newUser.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                  />
-                </div>
-
-                {/* Membresía */}
-                <div>
-                  <label htmlFor="membership" className="block text-sm font-medium text-gray-700 mb-2">
-                    Membresía
-                  </label>
-                  <select
-                    id="membership"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={newUser.membership}
-                    onChange={(e) => handleInputChange('membership', e.target.value as 'Premium' | 'Plus' | 'Básica')}
-                  >
-                    <option value="Básica">Básica</option>
-                    <option value="Plus">Plus</option>
-                    <option value="Premium">Premium</option>
-                  </select>
-                </div>
-
-                {/* Estado */}
-                <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado
-                  </label>
-                  <select
-                    id="status"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={newUser.status}
-                    onChange={(e) => handleInputChange('status', e.target.value as 'Activo' | 'Suspendido')}
-                  >
-                    <option value="Activo">Activo</option>
-                    <option value="Suspendido">Suspendido</option>
-                  </select>
-                </div>
-
-                  {/* Botones */}
-                  <div className="flex space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddForm(false)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleAddUser}
-                      className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-                    >
-                      Agregar Usuario
-                    </button>
-                  </div>
-              </div>
-            </div>
-
-            {/* Modal para agregar usuario */}
-            <AddUserModal 
+           <AddUserModal 
               show={showAddForm}
               onClose={() => setShowAddForm(false)}
               onUserAdded={fetchUsers}
             />
-          </div>
-          
-        )}
                {/* <EditUsertModal
             show={showAddForm2}
             onClose={() => setShowAddForm2(false)}

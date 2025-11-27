@@ -81,13 +81,6 @@ useEffect(() => {
     fetchUsers();
   }, []);
 
-    type Membership = {
-    id: string;
-    name_membership: string;
-    price_membership: number;
-    offers_membership: number;
-    membership_duration: number;
-  };
 
   type User = {
     id: number,

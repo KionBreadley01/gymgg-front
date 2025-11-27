@@ -65,6 +65,7 @@ const AddUserModal = ({
                 date_pay: dataDatePay,
                 password: dataPassword,
             };
+            console.log(form.membership_id)
             const response = await apiService.post("/useraccount/createRecep", form);
 
             if (response && response.id) {
