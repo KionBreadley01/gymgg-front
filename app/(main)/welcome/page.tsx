@@ -9,8 +9,8 @@ export default function InformativeSection() {
     id: number,
     name_membership: string,
     price_membership: number,
-    offers_membership: number,
-    membership_duration: number
+    offers_membership: string[],
+    duration_membership: string
   }
 
   const [membership, setMembership] = useState<Membership[]>([]);
@@ -20,10 +20,12 @@ export default function InformativeSection() {
     id: number,
     name_product: string,
     price_product: number,
-    description?: string
+    description?: string,
+    image_url?: string | null
   }
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/membership/")
@@ -60,12 +62,10 @@ export default function InformativeSection() {
   const plans = membership.map((m) => ({
     name: m.name_membership,
     price: `$${m.price_membership}`,
-    benefits: [
+    benefits: Array.isArray(m.offers_membership) ? m.offers_membership : [
       'Acceso ilimitado a todas las áreas',
       'Soporte premium',
-      'Clases grupales incluidas',
-      'Entrenador personal',
-      'Descuentos en productos'
+      'Clases grupales incluidas'
     ]
   }));
 
@@ -140,21 +140,75 @@ export default function InformativeSection() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {products.slice(0, 6).map((p) => (
-                <div key={p.id} className="bg-white border-2 border-yellow-400 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:scale-105 hover:shadow-2xl transition-all duration-300">
+                <div
+                  key={p.id}
+                  className="bg-white border-2 border-yellow-400 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedProduct(p)}
+                >
                   <div>
-                    <div className="w-full h-32 bg-yellow-50 rounded-xl mb-4 flex items-center justify-center">
-                      <Image src="/assets/images/products/creatine.jpeg" alt={p.name_product} width={120} height={120} className="object-cover rounded-lg" />
+                    <div className="w-full h-70 bg-yellow-50 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={p.image_url || "/assets/images/products/creatine.jpeg"}
+                        alt={p.name_product}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = `https://via.placeholder.com/150?text=${p.name_product.charAt(0)}`;
+                        }}
+                      />
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-gray-900">{p.name_product}</h3>
                     <p className="text-2xl font-extrabold mb-3 text-yellow-500">${p.price_product}</p>
-                    {p.description && (<p className="text-gray-600 text-sm">{p.description}</p>)}
                   </div>
-                  <Link href="/register" className="mt-auto w-full bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md text-center">Ver más</Link>
                 </div>
               ))}
             </div>
           )}
         </section>
+
+        {/* Modal de Producto */}
+        {selectedProduct && (
+          <div className="fixed inset-0 z-[100] w-screen h-screen flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setSelectedProduct(null)}>
+            <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden relative animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors z-10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="flex flex-col md:flex-row">
+                <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-100 flex items-center justify-center">
+                  <img
+                    src={selectedProduct.image_url || "/assets/images/products/creatine.jpeg"}
+                    alt={selectedProduct.name_product}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://via.placeholder.com/300?text=${selectedProduct.name_product.charAt(0)}`;
+                    }}
+                  />
+                </div>
+                <div className="p-8 md:w-1/2 flex flex-col justify-center">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">{selectedProduct.name_product}</h3>
+                  <p className="text-4xl font-extrabold text-yellow-500 mb-6">${selectedProduct.price_product}</p>
+
+                  <div className="prose prose-sm text-gray-600 mb-8">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Descripción</h4>
+                    <p>{selectedProduct.description || "Sin descripción disponible."}</p>
+                  </div>
+
+                  {/* <button
+                    onClick={() => setSelectedProduct(null)}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md"
+                  >
+                    Cerrar
+                  </button> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Membresías */}
         <section className="my-20">
