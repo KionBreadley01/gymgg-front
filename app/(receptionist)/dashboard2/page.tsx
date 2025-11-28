@@ -8,7 +8,7 @@ export default function AdminDashboard2() {
     <div className="min-h-screen bg-gray-50 text-black">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-gray-500 pb-2 mb-6 text-center">
-          Bienvenido Recepcionista 
+          Bienvenido Recepcionista
         </h2>
 
         {/* Tarjetas de módulos */}
@@ -21,13 +21,13 @@ export default function AdminDashboard2() {
               description: 'Gestión de usuarios'
             },
             {
-           href: '/dashboard2/productsRece',
-           title: 'Productos',
-           icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
-           description: 'Administración de productos'
-         },
-      
-              {
+              href: '/dashboard2/productsRece',
+              title: 'Productos',
+              icon: <Package className="h-10 w-10 text-yellow-600 mr-4" />,
+              description: 'Administración de productos'
+            },
+
+            {
               href: '/dashboard2/salesRecep',
               title: 'Ventas',
               icon: <ShoppingBag className="h-10 w-10 text-yellow-600 mr-4" />,

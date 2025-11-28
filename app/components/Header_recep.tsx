@@ -24,29 +24,29 @@ const Header_recep = () => {
   };
 
   // Redirige al usuario a la página de bienvenida y oculta el diálogo.
-const confirmLogout = async () => {
-  try {
-// cargar token guardada en local
-    const refreshToken = localStorage.getItem("refresh");
+  const confirmLogout = async () => {
+    try {
+      // cargar token guardada en local
+      const refreshToken = localStorage.getItem("refresh");
 
-    console.log(refreshToken)
-    if (refreshToken) {
-      await apiService.post("/api/auth/logout/", {refresh: refreshToken,});
+      console.log(refreshToken)
+      if (refreshToken) {
+        await apiService.post("/api/auth/logout/", { refresh: refreshToken, });
+      }
+
+      // Limpiar tokens del almacenamiento local
+
+
+      router.push("/welcome");
+      setShowConfirmation(false);
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+
+
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
     }
-
-    // Limpiar tokens del almacenamiento local
-
-   
-    router.push("/welcome");
-    setShowConfirmation(false);
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-
-
-  } catch (error) {
-    console.error("Error al cerrar sesión:", error);
-  }
-};
+  };
   // Simplemente oculta el diálogo de confirmación.
   const cancelLogout = () => {
     setShowConfirmation(false);
@@ -68,48 +68,45 @@ const confirmLogout = async () => {
           {/* Logo, Title and Navigation in one row */}
           <div className="grid grid-cols-3 items-center w-full">
             <Link href="/dashboard2" className="flex items-center">
-              <img 
-                src="/Logo.png" 
-                alt="Logo GymGG" 
+              <img
+                src="/Logo.png"
+                alt="Logo GymGG"
                 className="h-10 w-10 rounded-full border-2 border-yellow-500"
               />
               <span className="ml-2 text-xl font-bold">
                 GymsGG <span className="text-yellow-400">Recepcionista</span>
               </span>
             </Link>
-            
+
             {/* Navigation Links */}
             <nav className="flex items-center justify-center space-x-6">
-              <Link 
-                href="/dashboard2" 
-                className={`transition-colors ${
-                  isActiveLink('/dashboard2') 
-                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+              <Link
+                href="/dashboard2"
+                className={`transition-colors ${isActiveLink('/dashboard2')
+                    ? 'text-yellow-400 border-b-2 border-yellow-400'
                     : 'hover:text-yellow-400'
-                }`}
+                  }`}
               >
                 Panel
               </Link>
-              <Link 
-                href="/dashboard2/usersRecep" 
-                className={`transition-colors ${
-                  isActiveLink('/dashboard2/usersRecep') 
-                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+              <Link
+                href="/dashboard2/usersRecep"
+                className={`transition-colors ${isActiveLink('/dashboard2/usersRecep')
+                    ? 'text-yellow-400 border-b-2 border-yellow-400'
                     : 'hover:text-yellow-400'
-                }`}
+                  }`}
               >
                 Usuarios
               </Link>
-              <Link 
-                href="/dashboard2/productsRece" 
-                className={`transition-colors ${
-                  isActiveLink('/dashboard2/productsRece') 
-                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+              <Link
+                href="/dashboard2/productsRece"
+                className={`transition-colors ${isActiveLink('/dashboard2/productsRece')
+                    ? 'text-yellow-400 border-b-2 border-yellow-400'
                     : 'hover:text-yellow-400'
-                }`}
+                  }`}
               >
                 Productos
-              </Link>
+                {/* </Link>
               <Link 
                 href="/dashboard2/membershipsRecep" 
                 className={`transition-colors ${
@@ -119,23 +116,22 @@ const confirmLogout = async () => {
                 }`
               }
               >
-                Membresías
+                Membresías */}
               </Link>
-              <Link 
-                href="/dashboard2/salesRecep" 
-                className={`transition-colors ${
-                  isActiveLink('/dashboard2/salesRecep') 
-                    ? 'text-yellow-400 border-b-2 border-yellow-400' 
+              <Link
+                href="/dashboard2/salesRecep"
+                className={`transition-colors ${isActiveLink('/dashboard2/salesRecep')
+                    ? 'text-yellow-400 border-b-2 border-yellow-400'
                     : 'hover:text-yellow-400'
-                }`}
+                  }`}
               >
                 Ventas
               </Link>
             </nav>
 
             {/* Logout Button */}
-            <button 
-              onClick={handleLogout} 
+            <button
+              onClick={handleLogout}
               className="flex items-center space-x-2 hover:text-red-400 transition-colors justify-self-end"
             >
               <LogOut className="h-6 w-6" />
@@ -158,7 +154,7 @@ const confirmLogout = async () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            
+
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -168,7 +164,7 @@ const confirmLogout = async () => {
                   <p className="text-gray-500">Se cerrará tu sesión actual</p>
                 </div>
               </div>
-              
+
               <div className="flex space-x-3 pt-4">
                 <button
                   onClick={cancelLogout}
