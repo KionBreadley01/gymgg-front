@@ -18,6 +18,8 @@ import AddUserModal from '@/app/(receptionist)/dashboard2/modal/userModal/AddUse
 // import DeleteUserModal from '../modal/DeleteUserModal';
 
 import { jwtDecode } from "jwt-decode";
+import EditUsertModal from '@/app/(receptionist)/dashboard2/modal/userModal/EditUserModal'
+import DeleteUserModal from'@/app/(receptionist)/dashboard2/modal/userModal/DeleteUser'
 
 interface TokenPayload {
   user_id: number; // o "id", según cómo tu backend construya el token
@@ -514,19 +516,19 @@ console.log(currentUsers.length)
               onClose={() => setShowAddForm(false)}
               onUserAdded={fetchUsers}
             />
-               {/* <EditUsertModal
+               <EditUsertModal
             show={showAddForm2}
             onClose={() => setShowAddForm2(false)}
             onUserEdited= {fetchUsers}
             userSelected={onlyUser}
             />
-
+ 
         <DeleteUserModal
         show={removeUser}
         onClose={()=> SetremoveUser(false)}
         onUserEdited={fetchUsers}
         userSelected={onlyUser}
-        /> */}
+        />
       </div>
     </div>
   );
