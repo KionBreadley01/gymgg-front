@@ -145,12 +145,12 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos de recep</h1>
-            <button
-              onClick={() => setShowAddForm(true)}
+            {/* <button
+              onClick={()=> setShowAddForm(true)}
               className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Agregar Producto
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -273,13 +273,13 @@ export default function Products() {
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </button>
-                      <button
+                      {/* <button 
                         className="flex items-center px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => { e.stopPropagation(); SetremoveProduct(true) }}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Eliminar
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 )}
