@@ -36,14 +36,13 @@ const UpdateProductModal = ({
     const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:8000/products/categories/') // ajusta la URL según tu backend
-            .then(res => res.json())
-            .then(data => setCategory(data))
-            .catch(err => console.error('Error cargando categorías', err));
-
-
-
-    }, []);
+        if (show) {
+            fetch('http://localhost:8000/products/categories/') // ajusta la URL según tu backend
+                .then(res => res.json())
+                .then(data => setCategory(data))
+                .catch(err => console.error('Error cargando categorías', err));
+        }
+    }, [show]);
 
 
     useEffect(() => {
