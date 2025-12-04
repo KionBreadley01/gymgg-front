@@ -2,19 +2,15 @@
 
 import apiService from '@/app/Service/apiService';
 import { data, div, image, p } from 'framer-motion/client';
-import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Download, Upload } from 'lucide-react';
+import { read, utils, writeFile } from 'xlsx';
+import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddProductModal from '../modal/productModal/AddProductModal';
 import UpdateProductModal from '../modal/productModal/UpdateProductModal';
 
-
-
-
-
 export default function Products() {
-
-
 
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
@@ -115,25 +111,126 @@ export default function Products() {
     }
   };
 
-
-
-
-
   // Función para manejar la selección/deselección de productos
   const handleProductClick = (productId: number) => {
     if (selectedProduct === productId) {
       setSelectedProduct(null);
     } else {
       setSelectedProduct(productId);
-
     }
-    return selectedProduct
   };
 
 
   const handleProductClickGet = (Getproduct: any) => {
     setOnlyProduct(Getproduct)
     return onlyProduct
+  };
+
+  const handleExport = () => {
+    const ws = utils.json_to_sheet(products.map(p => ({
+      Nombre: p.name,
+      Precio: p.price,
+      Descripcion: p.description,
+      Stock: p.stock,
+      Categoria: p.category,
+      Imagen: p.image
+    })));
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, "Productos");
+    writeFile(wb, "productos_gymgg.xlsx");
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const bstr = event.target?.result;
+        const wb = read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = utils.sheet_to_json(ws);
+
+        if (data.length === 0) {
+          toast.warning("El archivo está vacío");
+          return;
+        }
+
+        toast.info("Procesando archivo...");
+
+        // 1. Obtener categorías únicas del Excel
+        const categoriesInExcel = new Set(data.map((item: any) => item.Categoria || item.Category));
+
+        // 2. Obtener categorías existentes
+        const token = localStorage.getItem('access');
+        const headers = {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        };
+
+        const existingCategoriesRes = await fetch('http://localhost:8000/products/categories/', { headers });
+        const existingCategories = await existingCategoriesRes.json();
+        const existingCategoryNames = new Set(existingCategories.map((c: any) => c.name_category));
+
+        // 3. Crear categorías faltantes
+        for (const catName of Array.from(categoriesInExcel)) {
+          if (catName && !existingCategoryNames.has(catName)) {
+            try {
+              await fetch('http://localhost:8000/products/categories/create', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ name_category: catName })
+              });
+            } catch (err) {
+              console.error(`Error creando categoría ${catName}`, err);
+            }
+          }
+        }
+
+        // 4. Crear productos
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const item of data as any[]) {
+          const productData = {
+            name_product: item.Nombre || item.Name,
+            price_product: item.Precio || item.Price,
+            description: item.Descripcion || item.Description || "Sin descripción",
+            stock: item.Stock || 0,
+            category: item.Categoria || item.Category,
+            image_url: item.Imagen || item.Image || ""
+          };
+
+          if (!productData.name_product || !productData.price_product || !productData.category) {
+            errorCount++;
+            continue;
+          }
+
+          try {
+            const res = await fetch('http://localhost:8000/products/create', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(productData)
+            });
+            if (res.ok) successCount++;
+            else errorCount++;
+          } catch (err) {
+            errorCount++;
+          }
+        }
+
+        toast.success(`Importación completada: ${successCount} agregados, ${errorCount} fallidos`);
+        fetchProducts();
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al procesar el archivo");
+      }
+    };
+    reader.readAsBinaryString(file);
   };
 
 
@@ -145,12 +242,20 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos de recep</h1>
-            {/* <button
-              onClick={()=> setShowAddForm(true)}
-              className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              Agregar Producto
-            </button> */}
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button
+                onClick={handleExport}
+                className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Exportar
+              </button>
+              <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
+                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Importar
+                <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImport} />
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -262,7 +367,7 @@ export default function Products() {
                 {selectedProduct === product.id && (
                   <div className="mt-4 pt-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-200 ml-0 sm:ml-24">
                     <h4 className="font-medium text-gray-800 mb-3 text-sm sm:text-base">Acciones:</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-4 gap-2 sm:gap-3">
                       <button
                         className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={() => {
@@ -273,7 +378,7 @@ export default function Products() {
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </button>
-                      {/* <button 
+                      {/* <button
                         className="flex items-center px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm justify-center transform hover:scale-105"
                         onClick={(e) => { e.stopPropagation(); SetremoveProduct(true) }}
                       >

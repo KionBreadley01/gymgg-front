@@ -44,7 +44,7 @@ const AddSaleModal = ({
     // Product selection states
     const [productSearch, setProductSearch] = useState("");
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState<number | string>(1);
 
     // Cart state
     const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
@@ -104,12 +104,14 @@ const AddSaleModal = ({
     const addToCart = () => {
         if (!selectedProduct) return;
 
-        if (quantity <= 0) {
+        const qty = typeof quantity === 'string' ? parseInt(quantity) : quantity;
+
+        if (!qty || qty <= 0) {
             toast.warning("La cantidad debe ser mayor a 0");
             return;
         }
 
-        if (quantity > selectedProduct.stock) {
+        if (qty > selectedProduct.stock) {
             toast.error(`Stock insuficiente. Solo hay ${selectedProduct.stock} disponibles.`);
             return;
         }
@@ -119,7 +121,7 @@ const AddSaleModal = ({
 
         if (existingItemIndex >= 0) {
             const newCart = [...cart];
-            const newQuantity = newCart[existingItemIndex].quantity + quantity;
+            const newQuantity = newCart[existingItemIndex].quantity + qty;
 
             if (newQuantity > selectedProduct.stock) {
                 toast.error(`No puedes agregar más de ${selectedProduct.stock} unidades en total.`);
@@ -129,7 +131,7 @@ const AddSaleModal = ({
             newCart[existingItemIndex].quantity = newQuantity;
             setCart(newCart);
         } else {
-            setCart([...cart, { product: selectedProduct, quantity }]);
+            setCart([...cart, { product: selectedProduct, quantity: qty }]);
         }
 
         // Reset selection
@@ -289,14 +291,29 @@ const AddSaleModal = ({
                                             min="1"
                                             max={selectedProduct?.stock || 1}
                                             value={quantity}
-                                            onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '') {
+                                                    setQuantity('');
+                                                } else {
+                                                    const num = parseInt(val);
+                                                    if (!isNaN(num)) {
+                                                        setQuantity(num);
+                                                    }
+                                                }
+                                            }}
+                                            onBlur={() => {
+                                                if (quantity === '' || quantity === 0) {
+                                                    setQuantity(1);
+                                                }
+                                            }}
                                             disabled={!selectedProduct}
                                             className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 text-gray-900 disabled:bg-gray-100"
                                         />
                                     </div>
                                     <button
                                         onClick={addToCart}
-                                        disabled={!selectedProduct || quantity < 1}
+                                        disabled={!selectedProduct || (typeof quantity === 'number' ? quantity < 1 : true)}
                                         className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 shadow-sm"
                                     >
                                         <Plus className="w-4 h-4" />
