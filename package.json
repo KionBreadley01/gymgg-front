@@ -23,7 +23,8 @@
     "react-responsive": "^10.0.1",
     "react-scroll": "^1.9.3",
     "react-toastify": "^11.0.5",
-    "swiper": "^11.2.8"
+    "swiper": "^11.2.8",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
