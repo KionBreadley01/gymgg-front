@@ -13,50 +13,35 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+
+import { jwtDecode } from "jwt-decode";
 import AddUserModal from '../modal/AddUserModal';
 import EditUsertModal from '../modal/EditUserModal';
 import DeleteUserModal from '../modal/DeleteUserModal';
-
-import { jwtDecode } from "jwt-decode";
+import AddMembershipModal from '../modal/AddMembershipModal';
+import AddMembershipToUserModal from '../modal/AddMembershipToUserModal';
 
 interface TokenPayload {
-  user_id: number; // o "id", según cómo tu backend construya el token
+  user_id: number;
   email: string;
   exp: number;
   iat: number;
 }
 
-
-
-
-// Tipos de datos
-interface NewUser {
-  name: string;
-  email: string;
-  membership: 'Premium' | 'Plus' | 'Básica';
-  status: 'Activo' | 'Suspendido';
-}
-
 export default function UserManagement() {
+  const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
 
-
-
-
-const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
-
-useEffect(() => {
-  
-  const token = localStorage.getItem("access");
-  if (token) {
-    try {
-      const decoded = jwtDecode<TokenPayload>(token);
-      setLoggedInUserId(decoded.user_id);
-    } catch (e) {
-      console.error("Token inválido:", e);
+  useEffect(() => {
+    const token = localStorage.getItem("access");
+    if (token) {
+      try {
+        const decoded = jwtDecode<TokenPayload>(token);
+        setLoggedInUserId(decoded.user_id);
+      } catch (e) {
+        console.error("Token inválido:", e);
+      }
     }
-  }
-}, []);
-
+  }, []);
 
   // Estados principales
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,14 +50,9 @@ useEffect(() => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeUser, SetremoveUser] = useState(false);
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
- 
-  
   const [onlyUser, setOnlyUser] = useState([]);
-
-
-
-
 
   // Configuración de paginación
   const usersPerPage = 5;
@@ -81,11 +61,11 @@ useEffect(() => {
     fetchUsers();
   }, []);
 
-
   type User = {
     id: number,
     email: string,
     name: string,
+    role: 'admin' | 'receptionist' | 'user',  
     membership: string | null,
     is_active: Boolean,
     date_pay: Date,
@@ -95,59 +75,62 @@ useEffect(() => {
   const [user, setUser] = useState<User[]>([])
 
   // Se realiza la peticion al back
-  const fetchUsers= async () => {
-            const token = localStorage.getItem('access');
+  const fetchUsers = async () => {
+    const token = localStorage.getItem('access');
 
-    try{
-        fetch("http://127.0.0.1:8000/useraccount/",{
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
-      }
-    })
+    try {
+      fetch("http://127.0.0.1:8000/useraccount/", {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        }
+      })
         .then(async (response) => {
           console.log("Response: ", response.status) 
-          if(!response.ok){
-              const text = await response.text()
-              console.log("Contenido de error: ", text) 
-              throw new Error(`Error al obtener los datos ${response.status}`)
+          if (!response.ok) {
+            const text = await response.text()
+            console.log("Contenido de error: ", text) 
+            throw new Error(`Error al obtener los datos ${response.status}`)
           }
           return response.json()
-          })
-            .then((data) => {
-              console.log("Datos: ", data)
-              setUser(data)
-            })
-          .catch((error) => console.log("Error: ", error)) 
-
-    } catch (error){
+        })
+        .then((data) => {
+          console.log("Datos: ", data)
+          setUser(data)
+        })
+        .catch((error) => console.log("Error: ", error)) 
+    } catch (error) {
       console.log("Error: ", error);
     }
   }
 
- const [Memberships, setMembership] = useState<
-        {id:string; name_membership:string; duration_membership:string}[]
-    >([]);
+  const [Memberships, setMembership] = useState<
+    { id: string; name_membership: string; duration_membership: string }[]
+  >([]);
 
-
-       useEffect(() => {
-        fetch("http://localhost:8000/membership") // ajusta la URL según tu backend
-            .then((res) => res.json())
-            .then((data) => {console.log("data", data); setMembership(data)})
-            .catch((err) => console.error("Error cargando categorías", err));
-    }, []);
-
-
-
-
+  useEffect(() => {
+    const token = localStorage.getItem('access');
+    fetch("http://localhost:8000/membership", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        ...(token && { "Authorization": `Bearer ${token}` })
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => { console.log("data", data); setMembership(data) })
+      .catch((err) => console.error("Error cargando categorías", err));
+  }, []);
 
   // Se guardan los datos obtenidos de la base de datos
   const users = user.map((m) => ({
     id: m.id,
     email: m.email,
     name: m.name,
+    role: m.role,
     membership: m.membership,
     is_active: m.is_active,
     date_pay: new Date(m.date_pay),
@@ -163,6 +146,24 @@ useEffect(() => {
     });
   }
 
+  // Funciones helper para roles
+  const getRoleColor = (role: string): string => {
+    const colors = {
+      'admin': 'bg-red-100 text-red-800',
+      'receptionist': 'bg-blue-100 text-blue-800',
+      'user': 'bg-green-100 text-green-800'
+    };
+    return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getRoleName = (role: string): string => {
+    const names = {
+      'admin': 'Administrador',
+      'receptionist': 'Recepcionista',
+      'user': 'Usuario'
+    };
+    return names[role as keyof typeof names] || 'Usuario';
+  };
 
   // Funciones utilitarias
   const getStatusColor = (status: string): string => {
@@ -173,19 +174,10 @@ useEffect(() => {
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  // const getMembershipColor = (membership: string): string => {
-  //   const colors = {
-  //     'Premium': 'bg-purple-100 text-purple-800',
-  //     'Plus': 'bg-blue-100 text-blue-800',
-  //     'Básica': 'bg-yellow-100 text-yellow-800'
-  //   };
-  //   return colors[membership as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  // };
-
   // Filtros y paginación
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMembership = filterMembership === 'all' || user.membership === filterMembership;
     return matchesSearch && matchesMembership;
   });
@@ -198,16 +190,12 @@ useEffect(() => {
   const selectedUserData = users.find(user => user.id === selectedUser);
 
   // Manejadores de eventos
-
-
-
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  // Resetear página cuando cambien los filtros
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -218,68 +206,39 @@ useEffect(() => {
     setCurrentPage(1);
   };
 
-
-     const handleUserClickGet = (GetUser: any) => {
-  setOnlyUser(GetUser)
+  const handleUserClickGet = (GetUser: any) => {
+    setOnlyUser(GetUser)
     return onlyUser 
   };
 
-const getMembershipName = (id: string | null) => {
-  if (!id) return "Sin membresía";
-
-  const found = Memberships.find((m) => String(m.id) === String(id));
-  return found ? found.name_membership : "No encontrada";
-};
-
-function getFirstDigit(value: string): number | null {
-    const match = value.match(/\d/); // solo una cifra
-    return match ? Number(match[0]) : null;
-}
-
-
-
-const getColorFromDigit = (numero: number) => {
-  // Mapeamos 0–9 → un tono 0–360
-  const hue = (numero / 9) * 360;
-
-  return `hsl(${hue}, 70%, 80%)`; // color pastel
-};
-
-
-const getMembershipColor = (membershipId: string | null) => {
-  if (!membershipId) return "bg-gray-100 text-gray-700";
-
-  // Ver si existe en BD
-  const found = Memberships.find(m => String(m.id) === String(membershipId));
-
-  if (!found) return "bg-gray-100 text-gray-700";
-
-  const firstDigit = getFirstDigit(found?.id);
-  console.log("Primer dígito para color:", firstDigit);
-
-   if (firstDigit === null) return "bg-gray-100 text-gray-700";
-  // Color dinámico basado en ID
-
-  const bgColor = getColorFromDigit(firstDigit);
-  console.log(bgColor)
-
-  return {
-    backgroundColor: bgColor,
-    color: "#333", // texto oscuro para buena lectura
+  const getMembershipName = (id: string | null) => {
+    if (!id) return "Sin membresía";
+    const found = Memberships.find((m) => String(m.id) === String(id));
+    return found ? found.name_membership : "No encontrada";
   };
-};
 
+  function getFirstDigit(value: string): number | null {
+    const match = value.match(/\d/);
+    return match ? Number(match[0]) : null;
+  }
 
+  const getColorFromDigit = (numero: number) => {
+    const hue = (numero / 9) * 360;
+    return `hsl(${hue}, 70%, 80%)`;
+  };
 
-
- // const getMembershipColor = (membership: string): string => {
-  //   const colors = {
-  //     'Premium': 'bg-purple-100 text-purple-800',
-  //     'Plus': 'bg-blue-100 text-blue-800',
-  //     'Básica': 'bg-yellow-100 text-yellow-800'
-  //   };
-  //   return colors[membership as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  // };
+  const getMembershipColor = (membershipId: string | null) => {
+    if (!membershipId) return "bg-gray-100 text-gray-700";
+    const found = Memberships.find(m => String(m.id) === String(membershipId));
+    if (!found) return "bg-gray-100 text-gray-700";
+    const firstDigit = getFirstDigit(found?.id);
+    if (firstDigit === null) return "bg-gray-100 text-gray-700";
+    const bgColor = getColorFromDigit(firstDigit);
+    return {
+      backgroundColor: bgColor,
+      color: "#333",
+    };
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -293,7 +252,6 @@ const getMembershipColor = (membershipId: string | null) => {
         {/* Filtros y búsqueda */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Barra de búsqueda */}
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -307,7 +265,6 @@ const getMembershipColor = (membershipId: string | null) => {
               />
             </div>
 
-            {/* Filtro por membresía */}
             <div className="lg:w-48">
               <select
                 className="block w-full px-3 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
@@ -321,7 +278,6 @@ const getMembershipColor = (membershipId: string | null) => {
               </select>
             </div>
 
-            {/* Botón agregar usuario */}
             <button 
               onClick={() => setShowAddForm(true)}
               className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium flex items-center space-x-2"
@@ -334,18 +290,19 @@ const getMembershipColor = (membershipId: string | null) => {
 
         {/* Contenedor principal con tabla y detalles */}
         <div className="flex gap-6">
-          {/* Tabla de usuarios */}
           <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${selectedUser ? 'flex-1' : 'w-full'}`}>
             <div className="overflow-x-auto">
-              {currentUsers.length <= 1? (
-                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios,  Solo estas tu!</div>
-                
+              {currentUsers.length <= 1 ? (
+                <div className="text-center text-gray-500 py-12 text-lg">¡Sin Usuarios, Solo estas tu!</div>
               ) : (
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Usuario
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rol
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Membresía
@@ -356,13 +313,13 @@ const getMembershipColor = (membershipId: string | null) => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {currentUsers.filter((u)=>u.id !==loggedInUserId).map((user) => (
+                    {currentUsers.filter((u) => u.id !== loggedInUserId).map((user) => (
                       <tr 
                         key={user.id}
                         className={`hover:bg-gray-50 transition-colors cursor-pointer ${
                           selectedUser === user.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
                         }`}
-                        onClick={() => {setSelectedUser(user.id); handleUserClickGet(user)}}
+                        onClick={() => { setSelectedUser(user.id); handleUserClickGet(user) }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -376,14 +333,31 @@ const getMembershipColor = (membershipId: string | null) => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership || "Sin membresías")}`}>
-                            { getMembershipName(user.membership)|| "Sin membresías"}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                            {getRoleName(user.role)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.membership ? "Activo" : "Suspendido")}`}>
-                            {user.membership ? "Activo" : "Suspendido"}
-                          </span>
+                          {user.role === 'user' ? (
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMembershipColor(user?.membership || "Sin membresías")}`}>
+                              {getMembershipName(user.membership) || "Sin membresías"}
+                            </span>
+                          ) : (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                              Personal - N/A
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {user.role === 'user' ? (
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.membership ? "Activo" : "Suspendido")}`}>
+                              {user.membership ? "Activo" : "Suspendido"}
+                            </span>
+                          ) : (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                              Personal
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -392,7 +366,7 @@ const getMembershipColor = (membershipId: string | null) => {
               )}
             </div>
 
-            {/* Paginación - Siempre visible */}
+            {/* Paginación */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-sm text-gray-700 text-center sm:text-left">
@@ -412,7 +386,6 @@ const getMembershipColor = (membershipId: string | null) => {
                     <span className="hidden sm:inline">Anterior</span>
                   </button>
 
-                  {/* Numeración de página */}
                   <div className="flex space-x-1">
                     {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((page) => (
                       <button
@@ -451,7 +424,7 @@ const getMembershipColor = (membershipId: string | null) => {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Detalles del Usuario</h3>
                 <button 
-                  onClick={() => {setSelectedUser(null)}}
+                  onClick={() => { setSelectedUser(null) }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
@@ -459,7 +432,6 @@ const getMembershipColor = (membershipId: string | null) => {
               </div>
 
               <div className="space-y-6">
-                {/* Información del usuario */}
                 <div className="flex items-center space-x-4">
                   <div className="h-16 w-16 rounded-full bg-yellow-100 flex items-center justify-center">
                     <User className="h-8 w-8 text-yellow-600" />
@@ -470,51 +442,81 @@ const getMembershipColor = (membershipId: string | null) => {
                   </div>
                 </div>
 
-                {/* Detalles de membresía */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500">Membresía:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${(selectedUserData?.membership)}`}>
-                      {getMembershipName(selectedUserData.membership)}
+                    <span className="text-sm font-medium text-gray-500">Rol:</span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(selectedUserData.role)}`}>
+                      {getRoleName(selectedUserData.role)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500">Estado:</span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.membership ? "Activo" : "Suspendido")}`}>
-                      {selectedUserData.membership ? "Activo" : "Suspendido"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500">Fecha de Pago:</span>
-                    <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_pay)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
-                    <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
-                  </div>
+
+                  {selectedUserData.role === 'user' && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-500">Membresía:</span>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${(selectedUserData?.membership)}`}>
+                          {getMembershipName(selectedUserData.membership)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-500">Estado:</span>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUserData.membership ? "Activo" : "Suspendido")}`}>
+                          {selectedUserData.membership ? "Activo" : "Suspendido"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-500">Fecha de Pago:</span>
+                        <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_pay)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-500">Fecha de Vencimiento:</span>
+                        <span className="text-sm text-gray-900">{formatDate(selectedUserData.date_expiration)}</span>
+                      </div>
+                    </>
+                  )}
+
+                  {(selectedUserData.role === 'admin' || selectedUserData.role === 'receptionist') && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-xs text-blue-800">
+                        👔 Este usuario es parte del personal del gimnasio y no requiere membresía.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Acciones */}
               <div className="pt-4 border-t border-gray-200">
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
+                  {/* Botón de agregar membresía solo para usuarios sin membresía */}
+                  {selectedUserData.role === 'user' && !selectedUserData.membership && (
+                    <button 
+                      onClick={() => {
+                        setShowMembershipModal(true);
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Agregar Membresía</span>
+                    </button>
+                  )}
 
                   <button 
-                  onClick={()=> {
-                    setShowAddForm2(true);
-                    console.log(onlyUser)
-                  }}
-                  
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    onClick={() => {
+                      setShowAddForm2(true);
+                      console.log(onlyUser)
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     <Edit className="h-4 w-4" />
                     <span>Editar usuario</span>
                   </button>
                   <button 
-                  onClick={()=> {
-                    SetremoveUser(true);
-                  }}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    onClick={() => {
+                      SetremoveUser(true);
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
                     <Trash2 className="h-4 w-4" />
                     <span>Eliminar usuario</span>
                   </button>
@@ -524,44 +526,33 @@ const getMembershipColor = (membershipId: string | null) => {
           )}
         </div>
 
-        {/* Modal para agregar usuario */}
-        {showAddForm && (
-          <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Agregar Nuevo Usuario</h3>
-                <button 
-                  onClick={() => setShowAddForm(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+        <AddUserModal 
+          show={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          onUserAdded={fetchUsers}
+        />
 
-            
-            </div>
-
-         
-            {/* Modal para agregar usuario */}
-            <AddUserModal 
-              show={showAddForm}
-              onClose={() => setShowAddForm(false)}
-              onUserAdded={fetchUsers}
-            />
-          </div>
-        )}
-               <EditUsertModal
-            show={showAddForm2}
-            onClose={() => setShowAddForm2(false)}
-            onUserEdited= {fetchUsers}
-            userSelected={onlyUser}
-            />
+        <EditUsertModal
+          show={showAddForm2}
+          onClose={() => setShowAddForm2(false)}
+          onUserEdited={fetchUsers}
+          userSelected={onlyUser}
+        />
 
         <DeleteUserModal
-        show={removeUser}
-        onClose={()=> SetremoveUser(false)}
-        onUserEdited={fetchUsers}
-        userSelected={onlyUser}
+          show={removeUser}
+          onClose={() => SetremoveUser(false)}
+          onUserEdited={fetchUsers}
+          userSelected={onlyUser}
+        />
+
+        <AddMembershipToUserModal
+          show={showMembershipModal}
+          onClose={() => setShowMembershipModal(false)}
+          onMembershipAdded={fetchUsers}
+          userId={selectedUserData?.id.toString() || ''}
+          userName={selectedUserData?.name || ''}
+          userEmail={selectedUserData?.email || ''}
         />
       </div>
     </div>
