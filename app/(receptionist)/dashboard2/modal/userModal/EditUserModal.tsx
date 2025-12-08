@@ -101,7 +101,7 @@ setDataMembership("");
     <div className="fixed inset-0 flex justify-center items-center z-50 p-4  bg-black/60">
         <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Editar Membresia</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Editar Usuario</h3>
                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                     <X className="h-5 w-5" />   
                 </button>
