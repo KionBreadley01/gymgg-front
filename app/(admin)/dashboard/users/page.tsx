@@ -13,11 +13,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+
+import { jwtDecode } from "jwt-decode";
 import AddUserModal from '../modal/AddUserModal';
 import EditUsertModal from '../modal/EditUserModal';
 import DeleteUserModal from '../modal/DeleteUserModal';
-
-import { jwtDecode } from "jwt-decode";
+import AddMembershipModal from '../modal/AddMembershipModal';
+import AddMembershipToUserModal from '../modal/AddMembershipToUserModal';
 
 interface TokenPayload {
   user_id: number;
@@ -48,6 +50,7 @@ export default function UserManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeUser, SetremoveUser] = useState(false);
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [onlyUser, setOnlyUser] = useState([]);
 
@@ -475,7 +478,7 @@ export default function UserManagement() {
                   {(selectedUserData.role === 'admin' || selectedUserData.role === 'receptionist') && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                       <p className="text-xs text-blue-800">
-                        Este usuario es parte del personal del gimnasio y no requiere membresía.
+                        👔 Este usuario es parte del personal del gimnasio y no requiere membresía.
                       </p>
                     </div>
                   )}
@@ -485,6 +488,19 @@ export default function UserManagement() {
               <div className="pt-4 border-t border-gray-200">
                 <h5 className="text-sm font-medium text-gray-900 mb-3">Acciones</h5>
                 <div className="space-y-2">
+                  {/* Botón de agregar membresía solo para usuarios sin membresía */}
+                  {selectedUserData.role === 'user' && !selectedUserData.membership && (
+                    <button 
+                      onClick={() => {
+                        setShowMembershipModal(true);
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Agregar Membresía</span>
+                    </button>
+                  )}
+
                   <button 
                     onClick={() => {
                       setShowAddForm2(true);
@@ -528,6 +544,15 @@ export default function UserManagement() {
           onClose={() => SetremoveUser(false)}
           onUserEdited={fetchUsers}
           userSelected={onlyUser}
+        />
+
+        <AddMembershipToUserModal
+          show={showMembershipModal}
+          onClose={() => setShowMembershipModal(false)}
+          onMembershipAdded={fetchUsers}
+          userId={selectedUserData?.id.toString() || ''}
+          userName={selectedUserData?.name || ''}
+          userEmail={selectedUserData?.email || ''}
         />
       </div>
     </div>

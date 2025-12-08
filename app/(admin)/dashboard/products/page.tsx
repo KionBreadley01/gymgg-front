@@ -1,10 +1,10 @@
 'use client';
 
 import apiService from '@/app/Service/apiService';
-import { data, div, image, p } from 'framer-motion/client';
 import { Search, Package, DollarSign, Archive, Edit, Trash2, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Download, Upload } from 'lucide-react';
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,14 +12,9 @@ import { useRouter } from 'next/navigation';
 import AddProductModal from '../modal/AddProductModal';
 import UpdateProductModal from '../modal/UpdateProductModel';
 import DeleteProductModal from '../modal/DeleteProductModal';
-
-
-
+import ExportModal from '../modal/ExportModal';
 
 export default function Products() {
-
-
-
   // Estado para almacenar el término de búsqueda introducido por el usuario.
   const [searchTerm, setSearchTerm] = useState('');
   // Estado para registrar el ID del producto que ha sido seleccionado para ver más detalles.
@@ -28,16 +23,15 @@ export default function Products() {
   // Estado para controlar la página actual
   const [currentPage, setCurrentPage] = useState(1);
   // controla estado de modal de Registro products
-
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
-
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
-
     fetchProducts();
   }, []);
+
   // Número de productos por página
   const productsPerPage = 5;
 
@@ -58,17 +52,16 @@ export default function Products() {
     const token = localStorage.getItem('access');
 
     try {
-
       fetch("http://127.0.0.1:8000/products/", {
         method: "GET",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }) // si hay token, se agrega
+          ...(token && { "Authorization": `Bearer ${token}` })
         }
       })
         .then(async (response) => {
-          console.log("ento el respuest ")
+          console.log("entro el respuest ")
           if (!response.ok) {
             const text = await response.text();
             console.log("Contenido de error: ", text);
@@ -78,7 +71,6 @@ export default function Products() {
         })
         .then((data) => {
           setProdct(data);
-
         })
         .catch((error) => console.log("Error: ", error));
     } catch (error) {
@@ -86,8 +78,7 @@ export default function Products() {
     }
   }
 
-
-  // Se guardan los datos optenidos de la base de datos
+  // Se guardan los datos obtenidos de la base de datos
   const products = product.map((m) => ({
     id: m.id,
     name: m.name_product,
@@ -119,144 +110,85 @@ export default function Products() {
     }
   };
 
-
-
-
-
   // Función para manejar la selección/deselección de productos
   const handleProductClick = (productId: number) => {
     if (selectedProduct === productId) {
       setSelectedProduct(null);
     } else {
       setSelectedProduct(productId);
-
     }
     return selectedProduct
   };
-
 
   const handleProductClickGet = (Getproduct: any) => {
     setOnlyProduct(Getproduct)
     return onlyProduct
   };
 
-
-
+  // Función para exportar a PDF
   const handleExportPDF = () => {
-  const doc = new jsPDF();
+    const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text("Reporte de Productos", 14, 20);
+    doc.setFontSize(16);
+    doc.text("Reporte de Productos", 14, 20);
 
-  const tableData = products.map((product) => [
-    product.name,
-    product.category,
-    product.price,
-    product.stock,
-  ]);
+    const tableData = products.map((product) => [
+      product.name,
+      product.category,
+      `$${product.price}`,
+      product.stock,
+    ]);
 
-  autoTable(doc, {
-    startY: 30,
-    head: [["Nombre", "Categoría", "Precio", "Stock"]],
-    body: tableData,
-  });
+    autoTable(doc, {
+      startY: 30,
+      head: [["Nombre", "Categoría", "Precio", "Stock"]],
+      body: tableData,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [234, 179, 8] }, // color amarillo
+    });
 
-  doc.save("productos.pdf");
-};
+    const fecha = new Date().toISOString().split('T')[0];
+    doc.save(`productos_${fecha}.pdf`);
+    
+    toast.success('Archivo PDF descargado exitosamente');
+  };
 
+  // Función para exportar a Excel
+  const handleExportExcel = () => {
+    // Preparar datos para Excel
+    const excelData = products.map((product) => ({
+      'Nombre': product.name,
+      'Categoría': product.category,
+      'Precio': product.price,
+      'Stock': product.stock,
+      'Descripción': product.description,
+      'Estado de Stock': product.stock > 50 ? 'En Stock' : product.stock > 20 ? 'Stock Medio' : 'Stock Bajo'
+    }));
 
-  // const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
+    // Crear hoja de trabajo
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-  //   const reader = new FileReader();
-  //   reader.onload = async (event) => {
-  //     try {
-  //       const bstr = event.target?.result;
-  //       const wb = read(bstr, { type: 'binary' });
-  //       const wsname = wb.SheetNames[0];
-  //       const ws = wb.Sheets[wsname];
-  //       const data = utils.sheet_to_json(ws);
+    // Configurar anchos de columna
+    const columnWidths = [
+      { wch: 30 }, // Nombre
+      { wch: 20 }, // Categoría
+      { wch: 12 }, // Precio
+      { wch: 10 }, // Stock
+      { wch: 40 }, // Descripción
+      { wch: 15 }, // Estado de Stock
+    ];
+    worksheet['!cols'] = columnWidths;
 
-  //       if (data.length === 0) {
-  //         toast.warning("El archivo está vacío");
-  //         return;
-  //       }
+    // Crear libro de trabajo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
 
-  //       toast.info("Procesando archivo...");
-
-  //       // 1. Obtener categorías únicas del Excel
-  //       const categoriesInExcel = new Set(data.map((item: any) => item.Categoria || item.Category));
-
-  //       // 2. Obtener categorías existentes
-  //       const token = localStorage.getItem('access');
-  //       const headers = {
-  //         "Accept": "application/json",
-  //         "Content-Type": "application/json",
-  //         ...(token && { "Authorization": `Bearer ${token}` })
-  //       };
-
-  //       const existingCategoriesRes = await fetch('http://localhost:8000/products/categories/', { headers });
-  //       const existingCategories = await existingCategoriesRes.json();
-  //       const existingCategoryNames = new Set(existingCategories.map((c: any) => c.name_category));
-
-  //       // 3. Crear categorías faltantes
-  //       for (const catName of Array.from(categoriesInExcel)) {
-  //         if (catName && !existingCategoryNames.has(catName)) {
-  //           try {
-  //             await fetch('http://localhost:8000/products/categories/create', {
-  //               method: 'POST',
-  //               headers,
-  //               body: JSON.stringify({ name_category: catName })
-  //             });
-  //           } catch (err) {
-  //             console.error(`Error creando categoría ${catName}`, err);
-  //           }
-  //         }
-  //       }
-
-  //       // 4. Crear productos
-  //       let successCount = 0;
-  //       let errorCount = 0;
-
-  //       for (const item of data as any[]) {
-  //         const productData = {
-  //           name_product: item.Nombre || item.Name,
-  //           price_product: item.Precio || item.Price,
-  //           description: item.Descripcion || item.Description || "Sin descripción",
-  //           stock: item.Stock || 0,
-  //           category: item.Categoria || item.Category,
-  //           image_url: item.Imagen || item.Image || ""
-  //         };
-
-  //         if (!productData.name_product || !productData.price_product || !productData.category) {
-  //           errorCount++;
-  //           continue;
-  //         }
-
-  //         try {
-  //           const res = await fetch('http://localhost:8000/products/create', {
-  //             method: 'POST',
-  //             headers,
-  //             body: JSON.stringify(productData)
-  //           });
-  //           if (res.ok) successCount++;
-  //           else errorCount++;
-  //         } catch (err) {
-  //           errorCount++;
-  //         }
-  //       }
-
-  //       toast.success(`Importación completada: ${successCount} agregados, ${errorCount} fallidos`);
-  //       fetchProducts();
-
-  //     } catch (error) {
-  //       console.error(error);
-  //       toast.error("Error al procesar el archivo");
-  //     }
-  //   };
-  //   reader.readAsBinaryString(file);
-  // };
+    // Generar archivo
+    const fecha = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `productos_${fecha}.xlsx`);
+    
+    toast.success('Archivo Excel descargado exitosamente');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -265,25 +197,21 @@ export default function Products() {
         <div className="max-w-6xl mx-auto p-3 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Gestión de Productos</h1>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base w-full sm:w-auto justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              Agregar Producto
-            </button>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
-                onClick={handleExportPDF}
-                className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+                onClick={() => setShowAddForm(true)}
+                className="flex items-center px-3 sm:px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Agregar
+              </button>
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Exportar
               </button>
-              {/* <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
-                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                Importar
-                <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImport} />
-              </label> */}
             </div>
           </div>
         </div>
@@ -324,7 +252,6 @@ export default function Products() {
                 className={`border-b border-gray-200 p-4 sm:p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${selectedProduct === product.id ? 'bg-yellow-50' : ''}`}
                 onClick={() => { handleProductClick(product.id); handleProductClickGet(product) }}
               >
-                {/* ...existing code for product card... */}
                 <div className="flex flex-col space-y-4">
                   {/* Header del producto con imagen */}
                   <div className="flex items-start justify-between">
@@ -468,6 +395,7 @@ export default function Products() {
             </div>
           </div>
         </div>
+
         {/* Estadísticas rápidas */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md transform hover:scale-105 transition-transform">
@@ -487,7 +415,16 @@ export default function Products() {
             </p>
           </div>
         </div>
-        {/* Modal para agregar usuario */}
+
+        {/* Modal de Exportación */}
+        <ExportModal
+          show={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          onExportPDF={handleExportPDF}
+          onExportExcel={handleExportExcel}
+        />
+
+        {/* Modales existentes */}
         <AddProductModal
           show={showAddForm}
           onClose={() => setShowAddForm(false)}
