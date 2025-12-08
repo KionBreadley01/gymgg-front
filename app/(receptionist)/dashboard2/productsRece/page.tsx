@@ -8,6 +8,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ImportModal from '@/app/(admin)/dashboard/modal/ImportModal';
 
 
 
@@ -29,6 +30,7 @@ export default function Products() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
 
   useEffect(() => {
@@ -140,26 +142,27 @@ export default function Products() {
 
 
   const handleExportPDF = () => {
-  const doc = new jsPDF();
+    const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text("Reporte de Productos", 14, 20);
+    doc.setFontSize(16);
+    doc.text("Reporte de Productos", 14, 20);
 
-  const tableData = products.map((product) => [
-    product.name,
-    product.category,
-    product.price,
-    product.stock,
-  ]);
+    const tableData = products.map((product) => [
+      product.name,
+      product.category,
+      product.price,
+      product.stock,
+      product.image
+    ]);
 
-  autoTable(doc, {
-    startY: 30,
-    head: [["Nombre", "Categoría", "Precio", "Stock"]],
-    body: tableData,
-  });
+    autoTable(doc, {
+      startY: 30,
+      head: [["Nombre", "Categoría", "Precio", "Stock", "Imagen"]],
+      body: tableData,
+    });
 
-  doc.save("productos.pdf");
-};
+    doc.save("productos.pdf");
+  };
 
 
   // const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,11 +273,14 @@ export default function Products() {
                 <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Exportar
               </button>
-              {/* <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
+
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Importar
-                <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImport} />
-              </label> */}
+              </button>
             </div>
           </div>
         </div>
@@ -478,6 +484,11 @@ export default function Products() {
             </p>
           </div>
         </div>
+        <ImportModal
+          show={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onProductsImported={fetchProducts}
+        />
       </div>
     </div>
   );

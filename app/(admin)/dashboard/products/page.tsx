@@ -13,6 +13,7 @@ import AddProductModal from '../modal/AddProductModal';
 import UpdateProductModal from '../modal/UpdateProductModel';
 import DeleteProductModal from '../modal/DeleteProductModal';
 import ExportModal from '../modal/ExportModal';
+import ImportModal from '../modal/ImportModal';
 
 export default function Products() {
   // Estado para almacenar el término de búsqueda introducido por el usuario.
@@ -27,6 +28,7 @@ export default function Products() {
   const [showAddForm2, setShowAddForm2] = useState(false);
   const [removeProduct, SetremoveProduct] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -137,11 +139,12 @@ export default function Products() {
       product.category,
       `$${product.price}`,
       product.stock,
+      product.image,
     ]);
 
     autoTable(doc, {
       startY: 30,
-      head: [["Nombre", "Categoría", "Precio", "Stock"]],
+      head: [["Nombre", "Categoría", "Precio", "Stock", "Imagen"]],
       body: tableData,
       styles: { fontSize: 10 },
       headStyles: { fillColor: [234, 179, 8] }, // color amarillo
@@ -149,7 +152,7 @@ export default function Products() {
 
     const fecha = new Date().toISOString().split('T')[0];
     doc.save(`productos_${fecha}.pdf`);
-    
+
     toast.success('Archivo PDF descargado exitosamente');
   };
 
@@ -162,6 +165,7 @@ export default function Products() {
       'Precio': product.price,
       'Stock': product.stock,
       'Descripción': product.description,
+      'Imagen': product.image,
       'Estado de Stock': product.stock > 50 ? 'En Stock' : product.stock > 20 ? 'Stock Medio' : 'Stock Bajo'
     }));
 
@@ -175,6 +179,7 @@ export default function Products() {
       { wch: 12 }, // Precio
       { wch: 10 }, // Stock
       { wch: 40 }, // Descripción
+      { wch: 50 }, // Imagen
       { wch: 15 }, // Estado de Stock
     ];
     worksheet['!cols'] = columnWidths;
@@ -186,7 +191,7 @@ export default function Products() {
     // Generar archivo
     const fecha = new Date().toISOString().split('T')[0];
     XLSX.writeFile(workbook, `productos_${fecha}.xlsx`);
-    
+
     toast.success('Archivo Excel descargado exitosamente');
   };
 
@@ -210,7 +215,14 @@ export default function Products() {
                 className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                Exportar
+                exportar
+              </button>
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Importar
               </button>
             </div>
           </div>
@@ -422,6 +434,11 @@ export default function Products() {
           onClose={() => setShowExportModal(false)}
           onExportPDF={handleExportPDF}
           onExportExcel={handleExportExcel}
+        />
+        <ImportModal
+          show={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onProductsImported={fetchProducts}
         />
 
         {/* Modales existentes */}
