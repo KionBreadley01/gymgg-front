@@ -302,11 +302,11 @@ export default function Products() {
                 <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Agregar
               </button>
-              <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
+              {/* <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
                 <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Importar
                 <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImport} />
-              </label>
+              </label> */}
               <button
                 onClick={() => setShowExportModal(true)}
                 className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
