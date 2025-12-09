@@ -189,6 +189,98 @@ export default function Products() {
     
     toast.success('Archivo Excel descargado exitosamente');
   };
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const bstr = event.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (data.length === 0) {
+          toast.warning("El archivo está vacío");
+          return;
+        }
+
+        toast.info("Procesando archivo...");
+
+        // 1. Obtener categorías únicas del Excel
+        const categoriesInExcel = new Set(data.map((item: any) => item.Categoria || item.Category));
+
+        // 2. Obtener categorías existentes
+        const token = localStorage.getItem('access');
+        const headers = {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        };
+
+        const existingCategoriesRes = await fetch('http://localhost:8000/products/categories/', { headers });
+        const existingCategories = await existingCategoriesRes.json();
+        const existingCategoryNames = new Set(existingCategories.map((c: any) => c.name_category));
+
+        // 3. Crear categorías faltantes
+        for (const catName of Array.from(categoriesInExcel)) {
+          if (catName && !existingCategoryNames.has(catName)) {
+            try {
+              await fetch('http://localhost:8000/products/categories/create', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ name_category: catName })
+              });
+            } catch (err) {
+              console.error(`Error creando categoría ${catName}`, err);
+            }
+          }
+        }
+
+        // 4. Crear productos
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const item of data as any[]) {
+          const productData = {
+            name_product: item.Nombre || item.Name,
+            price_product: item.Precio || item.Price,
+            description: item.Descripcion || item.Description || "Sin descripción",
+            stock: item.Stock || 0,
+            category: item.Categoria || item.Category,
+            image_url: item.Imagen || item.Image || ""
+          };
+
+          if (!productData.name_product || !productData.price_product || !productData.category) {
+            errorCount++;
+            continue;
+          }
+
+          try {
+            const res = await fetch('http://localhost:8000/products/create', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(productData)
+            });
+            if (res.ok) successCount++;
+            else errorCount++;
+          } catch (err) {
+            errorCount++;
+          }
+        }
+
+        toast.success(`Importación completada: ${successCount} agregados, ${errorCount} fallidos`);
+        fetchProducts();
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al procesar el archivo");
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -205,6 +297,11 @@ export default function Products() {
                 <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Agregar
               </button>
+              <label className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base flex-1 justify-center shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
+                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Importar
+                <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleImport} />
+              </label>
               <button
                 onClick={() => setShowExportModal(true)}
                 className="flex items-center px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base flex-1 sm:flex-none justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
